@@ -1,0 +1,10 @@
+<Window x:Class="Minesweeper.GameWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Сапёр - Игра" ResizeMode="NoResize" SizeToContent="WidthAndHeight">
+
+    <Grid x:Name="BoardGrid" Margin="5">
+        <!-- Сетка клеток будет создана в коде -->
+    </Grid>
+
+</Window>
