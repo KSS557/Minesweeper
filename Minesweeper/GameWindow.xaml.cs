@@ -11,11 +11,16 @@ namespace Minesweeper
             GenerateBoard(width, height);
         }
 
-        private void GenerateBoard(int width, int height)
+        public void GenerateBoard(int width, int height)
         {
-            const int tileSize = 20; // размер одной клетки
+            const int tileSize = 20;
+            const int margin = 20;
+            const int captionBar = 30;
 
-            // Настраиваем Grid: столько строк и столбцов, сколько задано
+            BoardGrid.RowDefinitions.Clear();
+            BoardGrid.ColumnDefinitions.Clear();
+            BoardGrid.Children.Clear();
+
             for (int r = 0; r < height; r++)
             {
                 BoardGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(tileSize) });
@@ -26,21 +31,17 @@ namespace Minesweeper
                 BoardGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(tileSize) });
             }
 
-            // Пример: заполняем кнопками‑клетками (можно заменить на Label / другой Control)
             for (int r = 0; r < height; r++)
             {
                 for (int c = 0; c < width; c++)
                 {
                     var btn = new System.Windows.Controls.Button
                     {
-                        Margin = new Thickness(0.5), // тонкие отступы между клетками
+                        Margin = new Thickness(0.5),
                         Background = System.Windows.Media.Brushes.AliceBlue,
                         BorderBrush = System.Windows.Media.Brushes.LightGray,
                         Padding = new Thickness(0)
                     };
-
-                    // Пример: пишешь координаты в Content для отладки
-                    //btn.Content = $"{r},{c}";
 
                     System.Windows.Controls.Grid.SetRow(btn, r);
                     System.Windows.Controls.Grid.SetColumn(btn, c);
@@ -49,9 +50,14 @@ namespace Minesweeper
                 }
             }
 
-            // Задаём примерный размер окна под доску (дополнительно можно корректировать)
-            Width = width * tileSize + 20;
-            Height = height * tileSize + 50; // + шапка и отступы
+            int boardWidth = width * tileSize;
+            int boardHeight = height * tileSize;
+
+            this.MaxWidth = boardWidth + margin + 7;
+            this.MaxHeight = boardHeight + captionBar + margin + 7;
+
+            this.Width = this.MaxWidth;
+            this.Height = this.MaxHeight;
         }
     }
 }

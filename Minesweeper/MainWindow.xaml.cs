@@ -10,13 +10,24 @@ namespace Minesweeper
     /// </summary>
     public partial class MainWindow : Window
     {
-        private const int MinSize = 2;
-        private const int MaxSize = 99;
+        private readonly DifficultySettings _difficulty;
+        public readonly GameBoardController _game;
 
         public MainWindow()
         {
             InitializeComponent();
-            new DifficultySettings(this);
+            _difficulty = new DifficultySettings(this);
+            _game = new GameBoardController(this);
         }
+
+        public void ShowSettings()
+        {
+            PanelSettings.Visibility = Visibility.Visible;
+            PanelGame.Visibility = Visibility.Collapsed;
+        }
+
+        public int Width => _difficulty.Width;
+        public int Height => _difficulty.Height;
+        public int MineCount => _difficulty.MineCount;
     }
 }

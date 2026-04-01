@@ -12,7 +12,6 @@ namespace Minesweeper
         private int _width;
         private int _height;
         private int _mineCount;
-
         private const int MinSize = 2;
         private const int MaxSize = 99;
 
@@ -87,16 +86,7 @@ namespace Minesweeper
 
             _window.BtnPlay.Click += (sender, e) =>
             {
-                // Запуск игры с параметрами из DifficultySettings
-                var game = new GameWindow(Width, Height)
-                {
-                    Owner = _window,
-                    WindowStartupLocation = WindowStartupLocation.CenterOwner
-                };
-                _window.Hide(); // или Close(), если нужно
-                game.ShowDialog();
-
-                _window.Show();
+                _window._game.StartGame(_window.Width, _window.Height);
             };
         }
 
