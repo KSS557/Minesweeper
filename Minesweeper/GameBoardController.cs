@@ -187,8 +187,7 @@ namespace Minesweeper
                 if (Application.Current.MainWindow is Window w)
                 {
                     w.ResizeMode = ResizeMode.CanResize;
-                    w.Width = _window.MaxWidth;
-                    w.Height = _window.MaxHeight;
+                    _window.ResizeFromCenter(_window.MaxWidth, _window.MaxHeight);
                 }
             });
 
