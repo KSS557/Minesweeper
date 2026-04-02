@@ -24,6 +24,14 @@ namespace Minesweeper
         {
             PanelSettings.Visibility = Visibility.Visible;
             PanelGame.Visibility = Visibility.Collapsed;
+            ResizeMode = ResizeMode.NoResize;
+
+            if (Application.Current.MainWindow is Window w)
+            {
+                w.ResizeMode = ResizeMode.NoResize;
+                w.Width = 250;
+                w.Height = 400;
+            }
         }
 
         public int Width => _difficulty.Width;

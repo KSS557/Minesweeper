@@ -8,7 +8,7 @@
         Title="Сапер"
         Height="400"
         Width="250"
-        ResizeMode="CanResize"
+        ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen">
     <Grid>
         <Grid x:Name="PanelSettings"
@@ -134,38 +134,51 @@
             </StackPanel>
         </Grid>
 
-        <Grid x:Name="PanelGame"
-              Visibility="Collapsed"
-              Margin="0">
+        <Grid x:Name="PanelGame" Visibility="Collapsed" Margin="0">
 
-            
+            <!-- Строки игровые: 0 — таймер и кнопки, 1 — поле -->
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
+            <!-- 1. Строка сверху: таймер и кнопки -->
+            <StackPanel Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Grid.Row="0"
+                Height="40"
+                Margin="0,0,0,5">
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Height="40" Margin="0,0,0,5">
+                <TextBlock x:Name="TimerText" Text="00:00"
+                   Margin="0,0,20,0"
+                   VerticalAlignment="Center"
+                   FontWeight="SemiBold" />
 
-                <TextBlock Name="TimerText" Text="00:00" Margin="0,0,20,0" VerticalAlignment="Center" FontWeight="SemiBold" />
+                <Button x:Name="BtnRestart" Content="Заново"
+                Margin="0,0,10,0"
+                Width="80"
+                FontWeight="SemiBold" />
 
-                    <Button Content="Заново"
-                    Margin="0,0,10,0"
-                    Padding="10,3"
-                    x:Name="BtnRestart"
-                    Width="80"
-                    FontWeight="SemiBold" />
+                <Button x:Name="BtnBackToMenu" Content="Назад в меню"
+                Margin="0,0,0,0"
+                Width="120"
+                FontWeight="SemiBold" />
 
-                    <Button Content="Назад в меню"
-                    Margin="0,0,0,0"
-                    Padding="10,3"
-                    x:Name="BtnBackToMenu"
-                    Width="120"
-                    FontWeight="SemiBold" />
+            </StackPanel>
 
-                </StackPanel>
-
+            <!-- 2. Строкa с полем -->
+            <Grid Grid.Row="1" Margin="0">
 
                 <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                          VerticalScrollBarVisibility="Auto">
-                    <Grid x:Name="BoardGrid" Margin="5"/>
+                      VerticalScrollBarVisibility="Auto">
+
+                    <!-- Canvas как "полотно" для фикс. позиций, как в html -->
+                    <Canvas x:Name="BoardCanvas" Margin="0" />
+
                 </ScrollViewer>
+
+            </Grid>
 
         </Grid>
 

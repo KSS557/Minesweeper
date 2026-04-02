@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using System.Drawing.Printing;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Threading;
 
 namespace Minesweeper
@@ -39,13 +41,13 @@ namespace Minesweeper
             };
         }
 
-        public void StartGame(int width, int height)
+        /*public void StartGame(int width, int height)
         {
             StopTimer();
             ResetTimer();
 
             _window.PanelSettings.Visibility = Visibility.Collapsed;
-            _window.PanelGame.Visibility     = Visibility.Visible;
+            _window.PanelGame.Visibility = Visibility.Visible;
 
             const int tileSize = 20;
             const int margin = 20;
@@ -93,9 +95,102 @@ namespace Minesweeper
 
             if (Application.Current.MainWindow is Window w)
             {
+                w.ResizeMode = ResizeMode.CanResize;
                 w.Width = _window.MaxWidth;
                 w.Height = _window.MaxHeight;
             }
+
+            StartTimer();
+        }*/
+
+        public void StartGame(int width, int height)
+        {
+            const int tileSize = 32;   // как в tile0, tile1 и т.п.
+            const int borderWidth = 2; // внутренний отступ поля, как в #board.left/top
+            const int fieldLeft = 20; // аналог left: 0px у tile0
+            const int fieldTop = 108; // аналог top: 108px у #board
+
+            StopTimer();
+            ResetTimer();
+
+            _width = width;
+            _height = height;
+
+            _window.PanelSettings.Visibility = Visibility.Collapsed;
+            _window.PanelGame.Visibility = Visibility.Visible;
+
+            // Очистить поле
+            _window.BoardCanvas.Children.Clear();
+
+            // Генерируем клетки как в HTML (#tile0, #tile1, ...)
+            for (int r = 0; r < height; r++)
+            {
+                for (int c = 0; c < width; c++)
+                {
+                    int index = r * width + c;
+
+                    // Позиция в стиле old HTML
+                    double leftPx = fieldLeft + c * tileSize + borderWidth;
+                    double topPx = fieldTop + r * tileSize + borderWidth;
+
+                    var img = new Image
+                    {
+                        Name = "tile" + index,
+                        Width = tileSize,
+                        Height = tileSize,
+                        HorizontalAlignment = HorizontalAlignment.Left,
+                        VerticalAlignment = VerticalAlignment.Top,
+                    };
+
+                    // Установить Canvas.Left/Top
+                    Canvas.SetLeft(img, leftPx);
+                    Canvas.SetTop(img, topPx);
+
+                    // Сначала — картинка закрытой клетки
+                    // img.Source = closedCellImage;  // твой BitmapImage
+
+                    // Обработчик клика (если надо)
+                    img.MouseDown += (sender, e) =>
+                    {
+                        if (e.LeftButton == MouseButtonState.Pressed)
+                        {
+                            // логика клика по клетке r, c
+                        }
+                        else if (e.RightButton == MouseButtonState.Pressed)
+                        {
+                            // логика правого клика
+                        }
+                    };
+
+                    _window.BoardCanvas.Children.Add(img);
+                }
+            }
+
+            // Оптимизация: задать размеры Canvas, чтобы ScrollViewer не путался
+            double canvasWidth = fieldLeft + width * tileSize + 2 * borderWidth;
+            double canvasHeight = fieldTop + height * tileSize + 2 * borderWidth;
+
+            _window.BoardCanvas.Width = canvasWidth;
+            _window.BoardCanvas.Height = canvasHeight;
+
+            // Если нужно, подогнать окно под поле (с учётом скролл‑бара, ~17 px)
+            Application.Current.Dispatcher.BeginInvoke(() =>
+            {
+                const int scrollbarSize = 17;
+
+                double desiredWidth = canvasWidth + scrollbarSize;
+                double desiredHeight = canvasHeight + 80; // плюс верхняя панель + отступы
+
+                _window.MaxWidth = desiredWidth;
+                _window.MaxHeight = desiredHeight;
+
+                if (Application.Current.MainWindow is Window w)
+                {
+                    w.ResizeMode = ResizeMode.CanResize;
+                    w.Width = _window.MaxWidth;
+                    w.Height = _window.MaxHeight;
+                }
+            });
 
             StartTimer();
         }
