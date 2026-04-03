@@ -148,6 +148,7 @@ namespace Minesweeper
 
                     // Сначала — картинка закрытой клетки
                     // img.Source = closedCellImage;  // твой BitmapImage
+                    img.Source = MinesweeperTextures.CellClose;
 
                     // Обработчик клика (если надо)
                     img.MouseDown += (sender, e) =>
