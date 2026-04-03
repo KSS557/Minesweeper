@@ -170,8 +170,10 @@
             <!-- 2. Строкa с полем -->
             <Grid Grid.Row="1" Margin="0">
 
-                <ScrollViewer HorizontalScrollBarVisibility="Auto"
-                      VerticalScrollBarVisibility="Auto">
+                <ScrollViewer x:Name="GameScrollViewer"
+                              HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Auto"
+                              PreviewMouseWheel="GameScrollViewer_PreviewMouseWheel">
 
                     <!-- Canvas как "полотно" для фикс. позиций, как в html -->
                     <Canvas x:Name="BoardCanvas" Margin="0" />

@@ -51,5 +51,21 @@ namespace Minesweeper
                 w.Height = newHeight;
             }
         }
+
+        private void GameScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            var scrollViewer = (ScrollViewer)sender;
+
+            if (Keyboard.Modifiers == ModifierKeys.Shift)
+            {
+                double delta = 3.0 * e.Delta;
+                double newOffset = scrollViewer.HorizontalOffset - delta;
+
+                newOffset = Math.Max(0, Math.Min(newOffset, scrollViewer.ScrollableWidth));
+                scrollViewer.ScrollToHorizontalOffset(newOffset);
+
+                e.Handled = true;
+            }
+        }
     }
 }
