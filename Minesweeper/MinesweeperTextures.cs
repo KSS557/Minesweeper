@@ -6,7 +6,7 @@ namespace Minesweeper
     public static class MinesweeperTextures
     {
         private static BitmapImage Load(string path) =>
-            new BitmapImage(new Uri($"C:\\Users\\Kirill\\source\\repos\\KSS557\\Minesweeper\\Minesweeper\\{path}"));
+            new BitmapImage(new Uri($"pack://application:,,,/{path}"));
 
         // === КЛЕТКИ ===
 

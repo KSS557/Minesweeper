@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -39,14 +40,20 @@ namespace Minesweeper
 
         public void ResizeFromCenter(double newWidth, double newHeight)
         {
-            double currentCenterX = (this.Left + this.Width) / 2;
-            double currentCenterY = (this.Top + this.Height) / 2;
+            
 
-            this.Left = (currentCenterX - this.Width) / 2;
-            this.Top = (currentCenterY - this.Height) / 2;
 
             if (Application.Current.MainWindow is Window w)
             {
+                double oldCenterX = (w.Left + w.Width) / 2;
+                double oldCenterY = (w.Top + w.Height) / 2;
+
+                Debug.WriteLine($"Left: {w.Left}, Top: {w.Top}, oldCenterX: {oldCenterX}, oldCenterY: {oldCenterY}, Width: {w.Width} , Height: {w.Height}");
+
+                w.Left = (oldCenterX - w.Width) / 2;
+                w.Top = (oldCenterY - w.Height) / 2;
+
+                Debug.WriteLine($"Left 2: {w.Left}, Top 2: {w.Top}, newWidth: {newWidth}, newHeight: {newHeight}");
                 w.Width = newWidth;
                 w.Height = newHeight;
             }

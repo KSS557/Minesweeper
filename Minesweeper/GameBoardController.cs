@@ -107,8 +107,8 @@ namespace Minesweeper
         {
             const int tileSize = 32;   // как в tile0, tile1 и т.п.
             const int borderWidth = 2; // внутренний отступ поля, как в #board.left/top
-            const int fieldLeft = 20; // аналог left: 0px у tile0
-            const int fieldTop = 108; // аналог top: 108px у #board
+            const int fieldLeft = 0; // аналог left: 0px у tile0
+            const int fieldTop = 0; // аналог top: 108px у #board
 
             StopTimer();
             ResetTimer();
@@ -168,8 +168,8 @@ namespace Minesweeper
             }
 
             // Оптимизация: задать размеры Canvas, чтобы ScrollViewer не путался
-            double canvasWidth = fieldLeft + width * tileSize + 2 * borderWidth;
-            double canvasHeight = fieldTop + height * tileSize + 2 * borderWidth;
+            double canvasWidth =  width * tileSize + 2 * borderWidth;
+            double canvasHeight = height * tileSize + 2 * borderWidth;
 
             _window.BoardCanvas.Width = canvasWidth;
             _window.BoardCanvas.Height = canvasHeight;
@@ -179,8 +179,8 @@ namespace Minesweeper
             {
                 const int scrollbarSize = 17;
 
-                double desiredWidth = canvasWidth + scrollbarSize;
-                double desiredHeight = canvasHeight + 80; // плюс верхняя панель + отступы
+                double desiredWidth = canvasWidth + scrollbarSize + 10;
+                double desiredHeight = canvasHeight + 80 + 10; // плюс верхняя панель + отступы
 
                 _window.MaxWidth = desiredWidth;
                 _window.MaxHeight = desiredHeight;
