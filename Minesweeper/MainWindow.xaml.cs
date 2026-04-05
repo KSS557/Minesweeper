@@ -40,23 +40,21 @@ namespace Minesweeper
 
         public void ResizeFromCenter(double newWidth, double newHeight)
         {
-            
-
-
             if (Application.Current.MainWindow is Window w)
             {
-                double oldCenterX = (w.Left + w.Width) / 2;
-                double oldCenterY = (w.Top + w.Height) / 2;
+                w.Left = Size(w.Left, w.Width, newWidth);
+                w.Top = Size(w.Top, w.Height, newHeight);
 
-                Debug.WriteLine($"Left: {w.Left}, Top: {w.Top}, oldCenterX: {oldCenterX}, oldCenterY: {oldCenterY}, Width: {w.Width} , Height: {w.Height}");
-
-                w.Left = (oldCenterX - w.Width) / 2;
-                w.Top = (oldCenterY - w.Height) / 2;
-
-                Debug.WriteLine($"Left 2: {w.Left}, Top 2: {w.Top}, newWidth: {newWidth}, newHeight: {newHeight}");
                 w.Width = newWidth;
                 w.Height = newHeight;
             }
+        }
+
+        private double Size(double indent, double oldSize, double newSize)
+        {
+            double indentToTheCenter = Math.Abs((newSize - oldSize) / 2 - indent);
+            if (indentToTheCenter <= 0) return 0;
+            return indentToTheCenter;
         }
 
         private void GameScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)

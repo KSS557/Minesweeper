@@ -6,50 +6,55 @@ namespace Minesweeper
     public static class MinesweeperTextures
     {
         private static BitmapImage Load(string path) =>
-            new BitmapImage(new Uri($"pack://application:,,,/{path}"));
+            new BitmapImage(new Uri($"pack://application:,,,/Assets/{path}.png"));
+
+        private static BitmapImage Cell(string name) => Load($"cell\\{name}");
+        private static BitmapImage Face(string name) => Load($"face\\{name}");
+        private static BitmapImage Number(string name) => Load($"number\\{name}");
+
 
         // === КЛЕТКИ ===
 
-        public static BitmapImage Cell1 => Load("Assets\\cell\\cell1.png");
-        public static BitmapImage Cell2 => Load("Assets\\cell\\cell2.png");
-        public static BitmapImage Cell3 => Load("Assets\\cell\\cell3.png");
-        public static BitmapImage Cell4 => Load("Assets\\cell\\cell4.png");
-        public static BitmapImage Cell5 => Load("Assets\\cell\\cell5.png");
-        public static BitmapImage Cell6 => Load("Assets\\cell\\cell6.png");
-        public static BitmapImage Cell7 => Load("Assets\\cell\\cell7.png");
-        public static BitmapImage Cell8 => Load("Assets\\cell\\cell8.png");
+        public static BitmapImage Cell1 => Cell("cell1");
+        public static BitmapImage Cell2 => Cell("cell2");
+        public static BitmapImage Cell3 => Cell("cell3");
+        public static BitmapImage Cell4 => Cell("cell4");
+        public static BitmapImage Cell5 => Cell("cell5");
+        public static BitmapImage Cell6 => Cell("cell6");
+        public static BitmapImage Cell7 => Cell("cell7");
+        public static BitmapImage Cell8 => Cell("cell8");
 
-        public static BitmapImage CellBomb => Load("Assets\\cell\\cellBomb.png");
-        public static BitmapImage CellBombClick => Load("Assets\\cell\\cellBombClick.png");
-        public static BitmapImage CellBombWrong => Load("Assets\\cell\\cellBombWrong.png");
+        public static BitmapImage CellBomb => Cell("cellBomb");
+        public static BitmapImage CellBombClick => Cell("cellBombClick");
+        public static BitmapImage CellBombWrong => Cell("cellBombWrong");
 
-        public static BitmapImage CellClose => Load("Assets\\cell\\cellClose.png");
-        public static BitmapImage CellFlag => Load("Assets\\cell\\cellFlag.png");
-        public static BitmapImage CellIsEmpty => Load("Assets\\cell\\cellIsEmpty.png");
-        public static BitmapImage CellUnknown => Load("Assets\\cell\\cellUnknown.png");
-        public static BitmapImage CellUnknownOpen => Load("Assets\\cell\\cellUnknownOpen.png");
+        public static BitmapImage CellClose => Cell("cellClose");
+        public static BitmapImage CellFlag => Cell("cellFlag");
+        public static BitmapImage CellIsEmpty => Cell("cellIsEmpty");
+        public static BitmapImage CellUnknown => Cell("cellUnknown");
+        public static BitmapImage CellUnknownOpen => Cell("cellUnknownOpen");
 
         // === ЛИЦА ===
 
-        public static BitmapImage FaceLose => Load("Assets\\face\\faceLose.png");
-        public static BitmapImage FaceSmile => Load("Assets\\face\\faceSmile.png");
-        public static BitmapImage FaceSmileClick => Load("Assets\\face\\faceSmileClick.png");
-        public static BitmapImage FaceWin => Load("Assets\\face\\faceWin.png");
-        public static BitmapImage FaceWorried => Load("Assets\\face\\faceWorried.png");
+        public static BitmapImage FaceLose => Face("faceLose");
+        public static BitmapImage FaceSmile => Face("faceSmile");
+        public static BitmapImage FaceSmileClick => Face("faceSmileClick");
+        public static BitmapImage FaceWin => Face("faceWin");
+        public static BitmapImage FaceWorried => Face("faceWorried");
 
-        // === ЦИФРЫ (таймер/счётчик) ===
+        // === ЦИФРЫ ===
 
-        public static BitmapImage NumberMinus => Load("Assets\\number\\number-.png");
-        public static BitmapImage Number0 => Load("Assets\\number\\number0.png");
-        public static BitmapImage Number1 => Load("Assets\\number\\number1.png");
-        public static BitmapImage Number2 => Load("Assets\\number\\number2.png");
-        public static BitmapImage Number3 => Load("Assets\\number\\number3.png");
-        public static BitmapImage Number4 => Load("Assets\\number\\number4.png");
-        public static BitmapImage Number5 => Load("Assets\\number\\number5.png");
-        public static BitmapImage Number6 => Load("Assets\\number\\number6.png");
-        public static BitmapImage Number7 => Load("Assets\\number\\number7.png");
-        public static BitmapImage Number8 => Load("Assets\\number\\number8.png");
-        public static BitmapImage Number9 => Load("Assets\\number\\number9.png");
-        public static BitmapImage NumberIsEmpty => Load("Assets\\number\\numberIsEmpty.png");
+        public static BitmapImage NumberMinus => Number("number-");
+        public static BitmapImage Number0 => Number("number0");
+        public static BitmapImage Number1 => Number("number1");
+        public static BitmapImage Number2 => Number("number2");
+        public static BitmapImage Number3 => Number("number3");
+        public static BitmapImage Number4 => Number("number4");
+        public static BitmapImage Number5 => Number("number5");
+        public static BitmapImage Number6 => Number("number6");
+        public static BitmapImage Number7 => Number("number7");
+        public static BitmapImage Number8 => Number("number8");
+        public static BitmapImage Number9 => Number("number9");
+        public static BitmapImage NumberIsEmpty => Number("numberIsEmpty");
     }
 }

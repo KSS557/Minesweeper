@@ -1,7 +1,9 @@
-﻿using System.Drawing.Printing;
+﻿using System.Diagnostics;
+using System.Drawing.Printing;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 using System.Windows.Threading;
 
 namespace Minesweeper
@@ -9,109 +11,34 @@ namespace Minesweeper
     public class GameBoardController
     {
         private readonly MainWindow _window;
-
         private readonly DispatcherTimer _timer = new DispatcherTimer();
+        private GameHeaderPanel _headerPanel;
 
         private int _elapsedSeconds = 0;
         private int _width;
         private int _height;
 
+        private int _mineCount;
+        private int _flagCount = 0;
+
+        private bool _gameStarted = false;
+
         public GameBoardController(MainWindow window)
         {
             _window = window;
 
+            InitializeHeader();
+
             _timer.Interval = TimeSpan.FromSeconds(1);
-            _timer.Tick += (s, e) =>
-            {
-                _elapsedSeconds++;
-                int mins = _elapsedSeconds / 60;
-                int secs = _elapsedSeconds % 60;
-                _window.TimerText.Text = $"{mins:D2}:{secs:D2}";
-            };
-
-            _window.BtnRestart.Click += (s, e) =>
-            {
-                StartGame(_width, _height);
-            };
-
-            _window.BtnBackToMenu.Click += (s, e) =>
-            {
-                StopTimer();
-                _window.ShowSettings();
-            };
+            _timer.Tick += Timer_Tick;
+            
         }
-
-        /*public void StartGame(int width, int height)
-        {
-            StopTimer();
-            ResetTimer();
-
-            _window.PanelSettings.Visibility = Visibility.Collapsed;
-            _window.PanelGame.Visibility = Visibility.Visible;
-
-            const int tileSize = 20;
-            const int margin = 20;
-            const int captionBar = 30;
-
-            _window.BoardGrid.RowDefinitions.Clear();
-            _window.BoardGrid.ColumnDefinitions.Clear();
-            _window.BoardGrid.Children.Clear();
-
-            for (int r = 0; r < height; r++)
-            {
-                _window.BoardGrid.RowDefinitions.Add(new RowDefinition { Height = new GridLength(tileSize) });
-            }
-
-            for (int c = 0; c < width; c++)
-            {
-                _window.BoardGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(tileSize) });
-            }
-
-            for (int r = 0; r < height; r++)
-            {
-                for (int c = 0; c < width; c++)
-                {
-                    var btn = new Button
-                    {
-                        Margin = new Thickness(0.5),
-                        Background = System.Windows.Media.Brushes.AliceBlue,
-                        BorderBrush = System.Windows.Media.Brushes.LightGray,
-                        Padding = new Thickness(0)
-                    };
-
-                    Grid.SetRow(btn, r);
-                    Grid.SetColumn(btn, c);
-
-                    _window.BoardGrid.Children.Add(btn);
-                }
-            }
-
-            int boardWidth = width * tileSize;
-            int boardHeight = height * tileSize;
-
-            _window.MaxWidth = boardWidth + margin + 7;
-            _window.MaxHeight = boardHeight + captionBar + margin + 7;
-
-
-            if (Application.Current.MainWindow is Window w)
-            {
-                w.ResizeMode = ResizeMode.CanResize;
-                w.Width = _window.MaxWidth;
-                w.Height = _window.MaxHeight;
-            }
-
-            StartTimer();
-        }*/
 
         public void StartGame(int width, int height)
         {
-            const int tileSize = 32;   // как в tile0, tile1 и т.п.
-            const int borderWidth = 2; // внутренний отступ поля, как в #board.left/top
-            const int fieldLeft = 0; // аналог left: 0px у tile0
-            const int fieldTop = 0; // аналог top: 108px у #board
+            const int tileSize = 32;
+            const int borderWidth = 2;
 
-            StopTimer();
-            ResetTimer();
 
             _width = width;
             _height = height;
@@ -130,27 +57,29 @@ namespace Minesweeper
                     int index = r * width + c;
 
                     // Позиция в стиле old HTML
-                    double leftPx = fieldLeft + c * tileSize + borderWidth;
-                    double topPx = fieldTop + r * tileSize + borderWidth;
+                    double leftPx = c * tileSize + borderWidth;
+                    double topPx = r * tileSize + borderWidth;
 
                     var img = new Image
                     {
                         Name = "tile" + index,
                         Width = tileSize,
                         Height = tileSize,
-                        HorizontalAlignment = HorizontalAlignment.Left,
-                        VerticalAlignment = VerticalAlignment.Top,
+                        HorizontalAlignment = HorizontalAlignment.Center,
+                        VerticalAlignment = VerticalAlignment.Center,
+                        SnapsToDevicePixels = true,
                     };
+
+                    RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.NearestNeighbor);
 
                     // Установить Canvas.Left/Top
                     Canvas.SetLeft(img, leftPx);
+                    Canvas.SetRight(img, leftPx);
                     Canvas.SetTop(img, topPx);
+                    Canvas.SetBottom(img, topPx);
 
-                    // Сначала — картинка закрытой клетки
-                    // img.Source = closedCellImage;  // твой BitmapImage
                     img.Source = MinesweeperTextures.CellClose;
 
-                    // Обработчик клика (если надо)
                     img.MouseDown += (sender, e) =>
                     {
                         if (e.LeftButton == MouseButtonState.Pressed)
@@ -167,20 +96,21 @@ namespace Minesweeper
                 }
             }
 
-            // Оптимизация: задать размеры Canvas, чтобы ScrollViewer не путался
-            double canvasWidth =  width * tileSize + 2 * borderWidth;
+            double canvasWidth = width * tileSize + 2 * borderWidth;
             double canvasHeight = height * tileSize + 2 * borderWidth;
 
             _window.BoardCanvas.Width = canvasWidth;
             _window.BoardCanvas.Height = canvasHeight;
 
-            // Если нужно, подогнать окно под поле (с учётом скролл‑бара, ~17 px)
             Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 const int scrollbarSize = 17;
 
-                double desiredWidth = canvasWidth + scrollbarSize + 10;
-                double desiredHeight = canvasHeight + 80 + 10; // плюс верхняя панель + отступы
+                double desiredWidth = canvasWidth + scrollbarSize;
+                double desiredHeight = canvasHeight + 82 + scrollbarSize;
+
+                _window.MinWidth = 250;
+                _window.MinHeight = 400;
 
                 _window.MaxWidth = desiredWidth;
                 _window.MaxHeight = desiredHeight;
@@ -192,13 +122,85 @@ namespace Minesweeper
                 }
             });
 
-            StartTimer();
+        }
+
+        private void InitializeHeader()
+        {
+            if (_headerPanel != null)
+                return;
+
+            _headerPanel = new GameHeaderPanel();
+
+            // Подключаем панель в верхний контейнер
+            if (_window.HeaderContainer != null)
+            {
+                _window.HeaderContainer.Content = _headerPanel.Panel;
+            }
+
+
+            _headerPanel.FaceImage.MouseLeftButtonDown+= (s, e) =>
+            {
+                _headerPanel.FaceImage.Source = MinesweeperTextures.FaceSmileClick;
+                e.Handled = true;
+
+            };
+
+            _headerPanel.FaceImage.MouseLeftButtonUp += (s, e) =>
+            {
+                _headerPanel.FaceImage.Source = MinesweeperTextures.FaceSmile;
+                e.Handled = true;
+                _window.ShowSettings();
+
+            };
+
+            _headerPanel.FaceImage.MouseLeave += (s, e) =>
+            {
+                _headerPanel.FaceImage.Source = MinesweeperTextures.FaceSmile;
+                e.Handled = true;
+
+            };
+
+            _headerPanel.FaceImage.MouseLeave += (s, e) =>
+            {
+                if (_gameStarted)
+                    _headerPanel.FaceImage.Source = IsGameOver() ?
+                        (IsWin() ? MinesweeperTextures.FaceWin : MinesweeperTextures.FaceLose)
+                        : MinesweeperTextures.FaceSmile;
+            };
+        }
+
+        private void Timer_Tick(object? sender, EventArgs e)
+        {
+            _elapsedSeconds++;
+            _headerPanel.SetTime(_elapsedSeconds);
+        }
+
+        public void HandleRightClick(int r, int c)
+        {
+            // После любого изменения флага:
+            _flagCount = CountFlags(); // подсчёт флагов
+
+            int remaining = _mineCount - _flagCount;
+            _headerPanel.SetFlags(remaining);
+        }
+
+        private int CountFlags()
+        {
+            int count = 0;
+            foreach (Image img in _window.BoardCanvas.Children)
+            {
+                if (img.Source == MinesweeperTextures.CellFlag)
+                    count++;
+            }
+            return count;
         }
 
         private void StartTimer()
         {
             _elapsedSeconds = 0;
-            _window.TimerText.Text = "00:00";
+            _headerPanel.SetTime(0);
+            _headerPanel.SetFace(MinesweeperTextures.FaceSmile);
+
             _timer.Start();
         }
 
@@ -209,9 +211,28 @@ namespace Minesweeper
 
         private void ResetTimer()
         {
-            _timer.Stop();
+            StopTimer();
             _elapsedSeconds = 0;
-            _window.TimerText.Text = "00:00";
+            _headerPanel.SetTime(0);
         }
+
+        private bool IsGameOver() => false; // твой код
+        private bool IsWin() => false; // твой код
+
+        public void SetGameOverState(bool win)
+        {
+            StopTimer();
+
+            _headerPanel.SetFace(win ? MinesweeperTextures.FaceWin : MinesweeperTextures.FaceLose);
+        }
+
+        private void FaceImage_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.LeftButton == MouseButtonState.Pressed)
+            {
+                _headerPanel.FaceImage.Source = MinesweeperTextures.FaceSmileClick;
+            }
+        }
+
     }
 }

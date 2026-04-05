@@ -143,29 +143,7 @@
             </Grid.RowDefinitions>
 
             <!-- 1. Строка сверху: таймер и кнопки -->
-            <StackPanel Orientation="Horizontal"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Grid.Row="0"
-                Height="40"
-                Margin="0,0,0,5">
-
-                <TextBlock x:Name="TimerText" Text="00:00"
-                   Margin="0,0,20,0"
-                   VerticalAlignment="Center"
-                   FontWeight="SemiBold" />
-
-                <Button x:Name="BtnRestart" Content="Заново"
-                Margin="0,0,10,0"
-                Width="80"
-                FontWeight="SemiBold" />
-
-                <Button x:Name="BtnBackToMenu" Content="Назад в меню"
-                Margin="0,0,0,0"
-                Width="120"
-                FontWeight="SemiBold" />
-
-            </StackPanel>
+            <ContentControl x:Name="HeaderContainer" Grid.Row="0" HorizontalAlignment="Center"/>
 
             <!-- 2. Строкa с полем -->
             <Grid Grid.Row="1" Margin="0">
