@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace Minesweeper
@@ -32,15 +33,16 @@ namespace Minesweeper
             var panelTimer = new StackPanel { Orientation = Orientation.Horizontal };
             for (int i = 0; i < 3; i++)
             {
-                _timerDigits[i] = new Image { Width = 26, Height = 46 };
+                _timerDigits[i] = new Image { Width = 26, Height = 46, SnapsToDevicePixels = true, };
                 panelTimer.Children.Add(_timerDigits[i]);
             }
+            
 
             // Правая панель — флаги
             var panelFlag = new StackPanel { Orientation = Orientation.Horizontal };
             for (int i = 0; i < 3; i++)
             {
-                _flagDigits[i] = new Image { Width = 26, Height = 46 };
+                _flagDigits[i] = new Image { Width = 26, Height = 46, SnapsToDevicePixels = true, };
                 panelFlag.Children.Add(_flagDigits[i]);
             }
 
@@ -50,6 +52,7 @@ namespace Minesweeper
                 Width = 48,
                 Height = 48,
                 Margin = new Thickness(10, 0, 10, 0),
+                SnapsToDevicePixels = true,
             };
             
 

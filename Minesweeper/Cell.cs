@@ -1,63 +1,38 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using System.Windows.Controls;
+using System.Linq;
 
 namespace Minesweeper
 {
-    public class Cell : INotifyPropertyChanged
+    public class Cell
     {
-        private bool _isMine;
-        private bool _isRevealed;
-        private bool _isFlagged;
-        private int _adjacentMines;
-
+        public Image Img { get; set; }
         public int Row { get; set; }
         public int Col { get; set; }
+        public bool IsMine { get; set; }
+        public int AdjacentMines { get; set; }
+        public bool IsOpened { get; set; } = false;  // По умолчанию closed=false? Нет, true=closed? Исправьте логику
+        public bool IsFlagged { get; set; }
+        public bool HasNumber => AdjacentMines > 0 && AdjacentMines <= 8 && !IsOpened;
 
-        public bool IsMine
+        public List<Cell> GetNeighbors(GameBoardController controller, int totalRows, int totalCols)
         {
-            get => _isMine;
-            set
+            var neighbors = new List<Cell>();
+            for (int dr = -1; dr <= 1; dr++)
             {
-                _isMine = value;
-                OnPropertyChanged();
+                for (int dc = -1; dc <= 1; dc++)
+                {
+                    if (dr == 0 && dc == 0) continue;
+                    int nr = Row + dr, nc = Col + dc;
+                    if (nr >= 0 && nr < totalRows && nc >= 0 && nc < totalCols)
+                    {
+                        int idx = nr * totalCols + nc;
+                        var neighborImg = controller._window.BoardCanvas.Children.OfType<Image>()
+                            .FirstOrDefault(i => i.Name == "cell" + idx);
+                        if (neighborImg?.Tag is Cell n) neighbors.Add(n);
+                    }
+                }
             }
-        }
-
-        public bool IsRevealed
-        {
-            get => _isRevealed;
-            set
-            {
-                _isRevealed = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public bool IsFlagged
-        {
-            get => _isFlagged;
-            set
-            {
-                _isFlagged = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public int AdjacentMines
-        {
-            get => _adjacentMines;
-            set
-            {
-                _adjacentMines = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            return neighbors;
         }
     }
 }

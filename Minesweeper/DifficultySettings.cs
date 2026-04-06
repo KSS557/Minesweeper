@@ -86,7 +86,7 @@ namespace Minesweeper
 
             _window.BtnPlay.Click += (sender, e) =>
             {
-                _window._game.StartGame(_window.Width, _window.Height);
+                _window._game.StartGame(_width, _height, _mineCount);
             };
         }
 

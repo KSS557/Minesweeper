@@ -160,6 +160,44 @@
 
             </Grid>
 
+            <Grid x:Name="DialogOverlay" Visibility="Collapsed" Grid.RowSpan="2">
+                
+                <Grid.Background>
+                    <SolidColorBrush Color="Black" Opacity="0.6" />
+                </Grid.Background>
+
+                <Border HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Background="White"
+                        BorderBrush="DarkGray"
+                        BorderThickness="1"
+                        Padding="150"
+                        CornerRadius="10">
+
+                    <StackPanel>
+                        <TextBlock
+                        Text="Пауза"
+                        FontWeight="Bold"
+                        FontSize="16"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,10" />
+
+                        <Button
+                        x:Name="BtnResume"
+                        Content="Продолжить"
+                        Height="30"
+                        Margin="0,0,0,5" />
+
+                        <Button
+                        x:Name="BtnQuit"
+                        Content="Выйти в меню"
+                        Height="30" />
+
+                    </StackPanel>
+
+                </Border>
+
+            </Grid>
         </Grid>
 
     </Grid>

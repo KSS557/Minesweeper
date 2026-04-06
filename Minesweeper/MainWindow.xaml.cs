@@ -14,11 +14,22 @@ namespace Minesweeper
         private readonly DifficultySettings _difficulty;
         public readonly GameBoardController _game;
 
+        public int Width => _difficulty.Width;
+        public int Height => _difficulty.Height;
+        public int MineCount => _difficulty.MineCount;
+
         public MainWindow()
         {
             InitializeComponent();
             _difficulty = new DifficultySettings(this);
             _game = new GameBoardController(this);
+
+            BtnResume.Click += (s, e) => HideDialogOverlay();
+            BtnQuit.Click  += (s, e) =>
+            {
+                HideDialogOverlay();
+                ShowSettings();
+            };
         }
 
         public void ShowSettings()
@@ -33,10 +44,6 @@ namespace Minesweeper
                 ResizeFromCenter(250, 400);
             }
         }
-
-        public int Width => _difficulty.Width;
-        public int Height => _difficulty.Height;
-        public int MineCount => _difficulty.MineCount;
 
         public void ResizeFromCenter(double newWidth, double newHeight)
         {
@@ -71,6 +78,33 @@ namespace Minesweeper
 
                 e.Handled = true;
             }
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                if (DialogOverlay.Visibility == Visibility.Collapsed)
+                    ShowDialogOverlay();
+                else
+                    HideDialogOverlay();
+
+                e.Handled = true;
+            }
+
+            base.OnKeyDown(e);
+        }
+
+        public void ShowDialogOverlay()
+        {
+            DialogOverlay.Visibility = Visibility.Visible;
+            _game.StopTimer();
+        }
+
+        public void HideDialogOverlay()
+        {
+            DialogOverlay.Visibility = Visibility.Collapsed;
+            _game.ContyTimer();
         }
     }
 }
