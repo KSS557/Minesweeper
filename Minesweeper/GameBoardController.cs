@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -71,8 +72,6 @@ namespace Minesweeper
                         SnapsToDevicePixels = true,
                     };
 
-                    img.Source = MinesweeperTextures.CellClose;
-
                     RenderOptions.SetBitmapScalingMode(img, BitmapScalingMode.NearestNeighbor);
 
                     // Установить Canvas.Left/Top
@@ -124,23 +123,19 @@ namespace Minesweeper
         private void SetupCellEvents(Image img, Cell cell)
         {
             bool isPressed = false;
-            List<Cell> tempOpenedNeighbors = new();  // Для отката
+            List<Cell> tempOpenedNeighbors = new();
 
             img.MouseLeftButtonDown += (s, e) =>
             {
                 if (cell.IsFlagged) return;
-
                 isPressed = true;
-                _pressedImage = img;  // Глобальный pressed
-
-                if (!cell.IsOpened)
-                {
-                    img.Source = MinesweeperTextures.CellIsEmpty;
-                }
-                else if (cell.IsOpened)
-                {
+                _pressedImage = img;
+                // ВРЕМЕННЫЙ визуал нажатия:
+                var oldSource = img.Source;
+                img.Source = MinesweeperTextures.CellIsEmpty;
+                tempOpenedNeighbors.Clear();
+                if (cell.IsOpened && cell.HasNumber)
                     OpenNeighborsTemp(cell, tempOpenedNeighbors);
-                }
             };
 
             img.MouseLeftButtonUp += (s, e) =>
@@ -149,15 +144,9 @@ namespace Minesweeper
                 {
                     isPressed = false;
                     _pressedImage = null;
-
-                    if (!_gameStarted)
-                    {
-                        _gameStarted = true;
-                        StartTimer();
-                    }
-
-                    FinalizeCellOpen(cell);  // Финализируем открытие
                     ClearTempNeighbors(tempOpenedNeighbors);
+                    if (!_gameStarted) { _gameStarted = true; StartTimer(); }
+                    FinalizeCellOpen(cell);  // ← Изменяет свойства → текстура авто!
                 }
             };
 
@@ -165,19 +154,22 @@ namespace Minesweeper
             {
                 if (isPressed)
                 {
-                    img.Source = cell.IsOpened ? GetNumberCell(cell.AdjacentMines) : MinesweeperTextures.CellClose;
-                    ClearTempNeighbors(tempOpenedNeighbors);
-                    _pressedImage = null;
                     isPressed = false;
+                    _pressedImage = null;
+                    ClearTempNeighbors(tempOpenedNeighbors);
                 }
             };
 
-            // Правый клик для флага (тоже здесь)
-            img.MouseRightButtonUp += (s, e) =>
-            {
-                ToggleFlag(cell);
-            };
+            img.MouseRightButtonUp += (s, e) => ToggleFlag(cell);
         }
+
+        private void ShowPressedVisual(Cell cell)
+        {
+            // ВРЕМЕННО показываем "нажатую" текстуру СВЕРХУ текущей
+            if (!cell.IsOpened)
+                cell.Img.Source = MinesweeperTextures.CellIsEmpty;  // Только визуал!
+        }
+
 
         private void PlaceMines(Cell[,] cells)
         {
@@ -231,94 +223,47 @@ namespace Minesweeper
 
         private void FinalizeCellOpen(Cell cell)
         {
-            if (cell.IsFlagged) return;
+            if (cell.IsFlagged || cell.IsOpened) return;
 
-            if (!cell.IsOpened)
+            cell.IsOpened = true;
+            cell.IsFlagged = false;
+            cell.IsUnknown = false;
+
+            if (cell.IsMine)
             {
-                cell.IsOpened = true;
-                if (cell.IsMine)
-                {
-                    cell.Img.Source = MinesweeperTextures.CellBombClick;
-                    SetGameOverState(false);  // Проигрыш
-                    RevealAllMines();  // Показать все мины
-                    return;
-                }
-
-                // TODO: Если бомба — game over
-
-                cell.Img.Source = GetNumberCell(cell.AdjacentMines);
-                CheckWin();
-
+                SetGameOverState(false);
+                RevealAllMines();
+            }
+            else
+            {
                 if (cell.AdjacentMines == 0)
                 {
                     FloodFillOpen(cell);
                 }
+                CheckWin();
             }
-            // Для чисел: ничего, соседи уже открыты навсегда? По задаче — только пока зажато
         }
 
         private void FloodFillOpen(Cell startCell)
         {
-            // Только для пустых (0) областей
-            if (startCell.IsFlagged)
-                return;
+            var stack = new Stack<Cell>();
+            stack.Push(startCell);
 
-            var queue = new Queue<Cell>();
-            queue.Enqueue(startCell);
-
-            while (queue.Count > 0)
+            while (stack.Count > 0)
             {
-                var cell = queue.Dequeue();
+                var cell = stack.Pop();
+                if (cell.IsOpened || cell.IsFlagged) continue;
 
-                // Пропускаем уже обработанные/флаги/не-0
-                if (cell.IsOpened || cell.IsFlagged)
-                    continue;
-
-                // Открываем текущую (0)
                 cell.IsOpened = true;
-                cell.Img.Source = GetNumberCell(cell.AdjacentMines);  // CellIsEmpty
 
-                // Добавляем в очередь только соседние 0
                 foreach (var neighbor in cell.GetNeighbors(this, _height, _width))
                 {
-                    if (!neighbor.IsOpened && !neighbor.IsFlagged && neighbor.AdjacentMines == 0)
+                    if (!neighbor.IsFlagged && !neighbor.IsOpened)
                     {
-                        queue.Enqueue(neighbor);
-                    }
-                }
-            }
-
-            // Открываем граничные клетки с числами >0 вокруг всей области
-            OpenBorderCells(startCell);
-        }
-
-        private void OpenBorderCells(Cell startCell)
-        {
-            var visited = new HashSet<Cell>();
-            var queue = new Queue<Cell>();
-            queue.Enqueue(startCell);
-            visited.Add(startCell);
-
-            while (queue.Count > 0)
-            {
-                var cell = queue.Dequeue();
-                foreach (var neighbor in cell.GetNeighbors(this, _height, _width))
-                {
-                    if (!visited.Contains(neighbor))
-                    {
-                        visited.Add(neighbor);
-
-                        // Граничные: числа >0, закрытые, не флаги
-                        if (!neighbor.IsOpened && !neighbor.IsFlagged && neighbor.AdjacentMines > 0 && neighbor.AdjacentMines <= 8)
-                        {
-                            neighbor.IsOpened = true;
-                            neighbor.Img.Source = GetNumberCell(neighbor.AdjacentMines);
-                        }
-                        // Продолжаем обход области
-                        else if (!neighbor.IsOpened && !neighbor.IsFlagged)
-                        {
-                            queue.Enqueue(neighbor);
-                        }
+                        if (neighbor.AdjacentMines == 0)
+                            stack.Push(neighbor);
+                        else
+                            neighbor.IsOpened = true;  // Граница
                     }
                 }
             }
@@ -326,15 +271,25 @@ namespace Minesweeper
 
         private void ToggleFlag(Cell cell)
         {
-            if (!cell.IsOpened)
+            if (cell.IsOpened) return;
+
+            if (cell.IsFlagged)
             {
-                cell.IsFlagged = !cell.IsFlagged;
-                cell.Img.Source = cell.IsFlagged ? MinesweeperTextures.CellFlag : MinesweeperTextures.CellClose;
-                _flagCount = CountFlags();  // Или инкремент/декремент
-                int remaining = _window.MineCount - _flagCount;
-                _headerPanel.SetFlags(remaining);
+                cell.IsFlagged = false;
+                cell.IsUnknown = true;  // ← Текстура авто!
             }
+            else if (cell.IsUnknown)
+            {
+                cell.IsUnknown = false;  // ← Текстура авто!
+            }
+            else
+            {
+                cell.IsFlagged = true;   // ← Текстура авто!
+            }
+
+            _headerPanel.SetFlags(_mineCount - CountFlags());
         }
+
 
         private void RevealAllMines()
         {
@@ -459,90 +414,6 @@ namespace Minesweeper
                 _window.ShowLoseOverlay();
             }
         }
-
-        public void HandleLeftClick(Image img)
-        {
-            bool _isCellPressed = false;
-
-            img.MouseLeftButtonDown += (s, e) =>
-            {
-                if (img.Source.ToString() == MinesweeperTextures.CellClose.ToString())
-                {
-                    img.Source = MinesweeperTextures.CellIsEmpty;
-                    _isCellPressed = true;
-                }
-            };
-
-            img.MouseLeftButtonUp += (s, e) =>
-            {
-                if (_isCellPressed)
-                {
-                    if (!_gameStarted)
-                    {
-                        _gameStarted = true;
-                        StartTimer();
-                    }
-
-                    if (img.Source.ToString() == MinesweeperTextures.CellClose.ToString())
-                    {
-                        Random rnd = new Random();
-                        int test = rnd.Next(0, 10);
-                        BitmapImage img2 = GetNumberCell(test);
-                        img.Source = img2;
-                        _isCellPressed = false;
-                    }
-                }
-            };
-
-            img.MouseLeave += (s, e) =>
-            {
-                img.Source = MinesweeperTextures.CellClose;
-                _isCellPressed = false;
-            };
-        }
-
-        public void HandleRightClick(Image img)
-        {
-            // Правило:
-            // - если CellClose -> ставишь флаг
-            // - если CellFlag -> убираешь флаг обратно в CellClose
-            // - остальное (числа, бомбы и т.п.) не трогаем
-
-            if (img.Source == MinesweeperTextures.CellClose)
-            {
-                img.Source = MinesweeperTextures.CellFlag;
-                _flagCount++;
-            }
-            else if (img.Source == MinesweeperTextures.CellFlag)
-            {
-                img.Source = MinesweeperTextures.CellUnknown;
-                _flagCount--;
-            }
-            else if (img.Source == MinesweeperTextures.CellUnknown)
-            {
-                img.Source = MinesweeperTextures.CellClose;
-            }
-
-            // Обновляем счётчик: min_count − flags
-            int remaining = Math.Max(0, _window.MineCount - _flagCount);
-            _headerPanel.SetFlags(remaining);
-        }
-
-        private BitmapImage GetNumberCell(int digit)
-        {
-            return digit switch
-            {
-                0 => MinesweeperTextures.CellIsEmpty,
-                1 => MinesweeperTextures.Cell1,
-                2 => MinesweeperTextures.Cell2,
-                3 => MinesweeperTextures.Cell3,
-                4 => MinesweeperTextures.Cell4,
-                5 => MinesweeperTextures.Cell5,
-                6 => MinesweeperTextures.Cell6,
-                7 => MinesweeperTextures.Cell7,
-                8 => MinesweeperTextures.Cell8,
-                _ => MinesweeperTextures.CellBomb,
-            };
-        }
+        
     }
 }

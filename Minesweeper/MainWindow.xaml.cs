@@ -113,7 +113,7 @@ namespace Minesweeper
                 HideWinOverlay();
                 ShowSettings();
             };
-            BtnLoseExit.Click += (s, e) => HideWinOverlay();
+            BtnWinExit.Click += (s, e) => HideWinOverlay();
         }
 
         private void AssistLoseOvwrlay()

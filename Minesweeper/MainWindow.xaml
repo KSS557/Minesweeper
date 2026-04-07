@@ -171,7 +171,7 @@
                         Background="White"
                         BorderBrush="DarkGray"
                         BorderThickness="1"
-                        Padding="100"
+                        Padding="50"
                         CornerRadius="10">
 
                     <StackPanel>
@@ -210,7 +210,7 @@
                         Background="#80FFFFFF"
                         BorderBrush="DarkGray"
                         BorderThickness="1"
-                        Padding="100"
+                        Padding="50"
                         CornerRadius="10">
 
                     <StackPanel>
