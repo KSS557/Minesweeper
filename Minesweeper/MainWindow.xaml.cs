@@ -24,12 +24,9 @@ namespace Minesweeper
             _difficulty = new DifficultySettings(this);
             _game = new GameBoardController(this);
 
-            BtnResume.Click += (s, e) => HideDialogOverlay();
-            BtnQuit.Click  += (s, e) =>
-            {
-                HideDialogOverlay();
-                ShowSettings();
-            };
+            AssistDialogOverlay();
+            AssistWinOvwrlay();
+            AssistLoseOvwrlay();
         }
 
         public void ShowSettings()
@@ -82,7 +79,7 @@ namespace Minesweeper
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            if (e.Key == Key.Escape)
+            if (e.Key == Key.Escape && WinOverlay.Visibility == Visibility.Collapsed && LoseOverlay.Visibility == Visibility.Collapsed)
             {
                 if (DialogOverlay.Visibility == Visibility.Collapsed)
                     ShowDialogOverlay();
@@ -95,6 +92,45 @@ namespace Minesweeper
             base.OnKeyDown(e);
         }
 
+        private void AssistDialogOverlay()
+        {
+            BtnResume.Click += (s, e) => HideDialogOverlay();
+            BtnQuit.Click += (s, e) =>
+            {
+                HideDialogOverlay();
+                ShowSettings();
+            };
+        }
+
+        private void AssistWinOvwrlay()
+        {
+            BtnWinLeaderBoard.Click += (s, e) =>
+            {
+                //TODO лидер борд
+            };
+            BtnWinQuit.Click += (s, e) =>
+            {
+                HideWinOverlay();
+                ShowSettings();
+            };
+            BtnLoseExit.Click += (s, e) => HideWinOverlay();
+        }
+
+        private void AssistLoseOvwrlay()
+        {
+            BtnLoseRestart.Click += (s, e) =>
+            {
+                HideLoseOverlay();
+                _game.ResetGame();
+            };
+            BtnLouseQuit.Click += (s, e) =>
+            {
+                HideLoseOverlay();
+                ShowSettings();
+            };
+            BtnLoseExit.Click += (s, e) => HideLoseOverlay();
+        }
+
         public void ShowDialogOverlay()
         {
             DialogOverlay.Visibility = Visibility.Visible;
@@ -105,6 +141,26 @@ namespace Minesweeper
         {
             DialogOverlay.Visibility = Visibility.Collapsed;
             _game.ContyTimer();
+        }
+
+        public void ShowWinOverlay()
+        {
+            WinOverlay.Visibility = Visibility.Visible;
+        }
+
+        public void HideWinOverlay()
+        {
+            WinOverlay.Visibility = Visibility.Collapsed;
+        }
+
+        public void ShowLoseOverlay()
+        {
+            LoseOverlay.Visibility = Visibility.Visible;
+        }
+
+        public void HideLoseOverlay()
+        {
+            LoseOverlay.Visibility = Visibility.Collapsed;
         }
     }
 }

@@ -96,6 +96,7 @@ namespace Minesweeper
         {
             return digit switch
             {
+                -1 => MinesweeperTextures.NumberMinus,
                 0 => MinesweeperTextures.Number0,
                 1 => MinesweeperTextures.Number1,
                 2 => MinesweeperTextures.Number2,
