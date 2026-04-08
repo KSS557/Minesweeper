@@ -78,7 +78,7 @@ namespace Minesweeper
                     Canvas.SetLeft(img, leftPx);
                     Canvas.SetTop(img, topPx);
 
-                    var cell = new Cell { Img = img, Row = r, Col = c };
+                    var cell = new Cell { Img = img, Row = r, Col = c, IsMine = false };
                     img.Tag = cell;  // Связываем Image с Cell
                     cells[r, c] = cell;
 
@@ -120,14 +120,14 @@ namespace Minesweeper
 
         }
 
-        private void SetupCellEvents(Image img, Cell cell)
+        private void SetupCellEvents2(Image img, Cell cell)
         {
             bool isPressed = false;
             List<Cell> tempOpenedNeighbors = new();
 
             img.MouseLeftButtonDown += (s, e) =>
             {
-                if (cell.IsFlagged) return;
+                if (cell.IsFlagged || cell.IsUnknown) return;
                 isPressed = true;
                 _pressedImage = img;
                 // ВРЕМЕННЫЙ визуал нажатия:
@@ -160,16 +160,98 @@ namespace Minesweeper
                 }
             };
 
-            img.MouseRightButtonUp += (s, e) => ToggleFlag(cell);
+            img.MouseRightButtonDown += (s, e) => ToggleFlag(cell);
         }
 
-        private void ShowPressedVisual(Cell cell)
+
+        private void SetupCellEvents(Image img, Cell cell)
         {
-            // ВРЕМЕННО показываем "нажатую" текстуру СВЕРХУ текущей
-            if (!cell.IsOpened)
-                cell.Img.Source = MinesweeperTextures.CellIsEmpty;  // Только визуал!
+
+            img.MouseMove += (s, e) =>
+            {
+                if(e.LeftButton == MouseButtonState.Pressed)
+                {
+                    PressedMoveCell(cell);
+                }
+            };
+
+            img.MouseLeftButtonDown += (s, e) =>
+            {
+                if (e.LeftButton == MouseButtonState.Pressed)
+                {
+                    PressedMoveCell(cell);
+                }
+            };
+
+            img.MouseLeftButtonUp += (s, e) =>
+            {
+                FinalizeCellOpen(cell);
+                PressedLeavCell(cell);
+            };
+
+            img.MouseLeave += (s, e) =>
+            {
+                PressedLeavCell(cell);
+            };
+
+            img.MouseRightButtonDown += (s, e) => ToggleFlag(cell);
         }
 
+        private void PressedMoveCell(Cell cell)
+        {
+            if (cell.IsOpened)
+            {
+                foreach (var neighbor in cell.GetNeighbors(this, _height, _width))
+                {
+                    if (!neighbor.IsOpened && !neighbor.IsFlagged && !neighbor.IsUnknown)
+                    {
+                        neighbor.IsPressed = true;
+                    }
+                }
+                return;
+            }
+            if (!cell.IsOpened)
+            {
+                cell.IsPressed = true;
+                return;
+            }
+        }
+
+        private void PressedLeavCell(Cell cell)
+        {
+            if (cell.IsOpened)
+            {
+                int flagCount = cell.GetNeighbors(this, _height, _width).Count(n => n.IsFlagged);
+
+                if (flagCount == cell.AdjacentMines)
+                {
+                    // Открываем все безопасные зажатые соседи
+                    foreach (var neighbor in cell.GetNeighbors(this, _height, _width))
+                    {
+                        if (!neighbor.IsOpened && !neighbor.IsFlagged && neighbor.IsPressed)
+                        {
+                            FinalizeCellOpen(neighbor);  // Полное открытие!
+                        }
+                    }
+                }
+                else
+                {
+                    foreach (var neighbor in cell.GetNeighbors(this, _height, _width))
+                    {
+                        if (!neighbor.IsOpened && !neighbor.IsFlagged && !neighbor.IsUnknown)
+                        {
+                            neighbor.IsPressed = false;
+                        }
+                    }
+                }
+                return;
+            }
+            if (!cell.IsOpened)
+            {
+                cell.IsPressed = false;
+                return;
+            }
+        }
 
         private void PlaceMines(Cell[,] cells)
         {
@@ -226,11 +308,11 @@ namespace Minesweeper
             if (cell.IsFlagged || cell.IsOpened) return;
 
             cell.IsOpened = true;
-            cell.IsFlagged = false;
-            cell.IsUnknown = false;
+            cell.IsPressed = false;
 
             if (cell.IsMine)
             {
+                cell.IsPressedBomb = true;
                 SetGameOverState(false);
                 RevealAllMines();
             }

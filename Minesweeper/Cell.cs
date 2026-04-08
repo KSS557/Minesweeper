@@ -14,6 +14,8 @@ namespace Minesweeper
         private bool _isUnknown;
         private bool _isMine;
         private int _adjacentMines;
+        private bool _isPressed;
+        private bool _isPressedBomb;
 
         public Image Img
         {
@@ -58,6 +60,18 @@ namespace Minesweeper
             set { _adjacentMines = value; OnPropertyChanged(); UpdateTexture(); }
         }
 
+        public bool IsPressed 
+        {
+            get => _isPressed;
+            set { _isPressed = value; OnPropertyChanged(); UpdateTexture(); }
+        }
+
+        public bool IsPressedBomb
+        {
+            get => _isPressedBomb;
+            set { _isPressedBomb = value; OnPropertyChanged(); UpdateTexture(); }
+        }
+
         public bool HasNumber => IsOpened && AdjacentMines > 0 && AdjacentMines <= 8;
         public bool IsClosed => !IsOpened;
         public bool IsEmpty => IsOpened && AdjacentMines == 0;
@@ -87,20 +101,45 @@ namespace Minesweeper
         private void UpdateTexture()
         {
             if (_img == null) return;
+            
+            if (IsPressedBomb)
+            {
+                _img.Source = MinesweeperTextures.CellBombClick;
+                return;
+            }
+
+            if (!IsOpened && IsPressed)
+            {
+                _img.Source = MinesweeperTextures.CellIsEmpty;
+                return;
+            }
+
+            if (IsOpened && IsMine)
+            {
+                _img.Source = MinesweeperTextures.CellBomb;
+                return;
+            }
 
             if (IsOpened)
             {
-                if (IsMine)
-                    _img.Source = MinesweeperTextures.CellBomb;
-                else
-                    _img.Source = GetNumberCell(AdjacentMines);
+                _img.Source = GetNumberCell(AdjacentMines);
+                return;
             }
-            else if (IsFlagged)
+            if (IsFlagged)
+            {
                 _img.Source = MinesweeperTextures.CellFlag;
-            else if (IsUnknown)
+                return;
+            }
+            if (IsUnknown)
+            {
                 _img.Source = MinesweeperTextures.CellUnknown;
-            else
+                return;
+            }
+            if (!IsOpened)
+            {
                 _img.Source = MinesweeperTextures.CellClose;
+                return;
+            }
         }
 
 
