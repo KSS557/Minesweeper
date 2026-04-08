@@ -377,9 +377,12 @@ namespace Minesweeper
         {
             foreach (Image img in _window.BoardCanvas.Children.OfType<Image>())
             {
-                if (img.Tag is Cell cell && cell.IsMine && !cell.IsOpened)
+                if (img.Tag is Cell cell)
                 {
-                    img.Source = MinesweeperTextures.CellBomb;
+                    if (cell.IsMine || (cell.IsFlagged && !cell.IsMine) || (cell.IsUnknown && !cell.IsMine))
+                    {
+                        cell.IsOpened = true;
+                    }
                 }
             }
         }

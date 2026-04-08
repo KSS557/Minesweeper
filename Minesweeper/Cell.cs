@@ -113,12 +113,27 @@ namespace Minesweeper
                 _img.Source = MinesweeperTextures.CellIsEmpty;
                 return;
             }
-
+            if (IsOpened && IsFlagged && IsMine)
+            {
+                _img.Source = MinesweeperTextures.CellFlag;
+                return;
+            }
+            if (IsOpened && IsFlagged)
+            {
+                _img.Source = MinesweeperTextures.CellBombWrong;
+                return;
+            }
             if (IsOpened && IsMine)
             {
                 _img.Source = MinesweeperTextures.CellBomb;
                 return;
             }
+            if (IsOpened && IsUnknown)
+            {
+                _img.Source = MinesweeperTextures.CellUnknownOpen;
+                return;
+            }
+            
 
             if (IsOpened)
             {
@@ -140,6 +155,7 @@ namespace Minesweeper
                 _img.Source = MinesweeperTextures.CellClose;
                 return;
             }
+            
         }
 
 
