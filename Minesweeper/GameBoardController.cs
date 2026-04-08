@@ -186,7 +186,7 @@ namespace Minesweeper
             img.MouseLeftButtonUp += (s, e) =>
             {
                 FinalizeCellOpen(cell);
-                PressedLeavCell(cell);
+                PressedUpCell(cell);
             };
 
             img.MouseLeave += (s, e) =>
@@ -217,7 +217,7 @@ namespace Minesweeper
             }
         }
 
-        private void PressedLeavCell(Cell cell)
+        private void PressedUpCell(Cell cell)
         {
             if (cell.IsOpened)
             {
@@ -242,6 +242,26 @@ namespace Minesweeper
                         {
                             neighbor.IsPressed = false;
                         }
+                    }
+                }
+                return;
+            }
+            if (!cell.IsOpened)
+            {
+                cell.IsPressed = false;
+                return;
+            }
+        }
+
+        private void PressedLeavCell(Cell cell)
+        {
+            if (cell.IsOpened)
+            {
+                foreach (var neighbor in cell.GetNeighbors(this, _height, _width))
+                {
+                    if (!neighbor.IsOpened && !neighbor.IsFlagged && !neighbor.IsUnknown)
+                    {
+                        neighbor.IsPressed = false;
                     }
                 }
                 return;
