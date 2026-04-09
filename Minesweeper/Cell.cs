@@ -8,6 +8,8 @@ namespace Minesweeper
 {
     public class Cell : INotifyPropertyChanged
     {
+        public event Action<Cell> CellOpened;
+
         private Image _img;
         private bool _isOpened;
         private bool _isFlagged;
@@ -33,7 +35,12 @@ namespace Minesweeper
         public bool IsOpened
         {
             get => _isOpened;
-            set { _isOpened = value; OnPropertyChanged(); UpdateTexture(); }
+            set 
+            { 
+                if (_isOpened == value) return;
+                _isOpened = value; OnPropertyChanged(); UpdateTexture();
+                if (_isOpened) CellOpened?.Invoke(this);
+            }
         }
 
         public bool IsFlagged
@@ -73,7 +80,6 @@ namespace Minesweeper
         }
 
         public bool HasNumber => IsOpened && AdjacentMines > 0 && AdjacentMines <= 8;
-        public bool IsClosed => !IsOpened;
         public bool IsEmpty => IsOpened && AdjacentMines == 0;
         public bool IsBomb => IsOpened && IsMine;
 

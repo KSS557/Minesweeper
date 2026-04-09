@@ -5,13 +5,14 @@ namespace Minesweeper
 {
     public static class MinesweeperTextures
     {
+        private static Dictionary<string, BitmapImage> _cache = new();
+
         private static BitmapImage Load(string path) =>
             new BitmapImage(new Uri($"pack://application:,,,/Assets/{path}.png"));
 
         private static BitmapImage Cell(string name) => Load($"cell\\{name}");
         private static BitmapImage Face(string name) => Load($"face\\{name}");
         private static BitmapImage Number(string name) => Load($"number\\{name}");
-
 
         // === КЛЕТКИ ===
 
