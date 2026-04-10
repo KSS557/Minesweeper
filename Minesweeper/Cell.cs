@@ -114,54 +114,56 @@ namespace Minesweeper
                 return;
             }
 
-            if (!IsOpened && IsPressed)
+            if (!IsOpened)
             {
-                _img.Source = MinesweeperTextures.CellIsEmpty;
+                if (IsPressed)
+                {
+                    _img.Source = MinesweeperTextures.CellIsEmpty;
+                }
+                else if (IsFlagged)
+                {
+                    _img.Source = MinesweeperTextures.CellFlag;
+                    return;
+                }
+                else if (IsUnknown)
+                {
+                    _img.Source = MinesweeperTextures.CellUnknown;
+                    return;
+                }
+                else
+                {
+                    _img.Source = MinesweeperTextures.CellClose;
+                }
                 return;
             }
-            if (IsOpened && IsFlagged && IsMine)
-            {
-                _img.Source = MinesweeperTextures.CellFlag;
-                return;
-            }
-            if (IsOpened && IsFlagged)
-            {
-                _img.Source = MinesweeperTextures.CellBombWrong;
-                return;
-            }
-            if (IsOpened && IsMine)
-            {
-                _img.Source = MinesweeperTextures.CellBomb;
-                return;
-            }
-            if (IsOpened && IsUnknown)
-            {
-                _img.Source = MinesweeperTextures.CellUnknownOpen;
-                return;
-            }
-            
 
             if (IsOpened)
             {
-                _img.Source = GetNumberCell(AdjacentMines);
+                if (IsFlagged)
+                {
+                    if (IsMine)
+                    {
+                        _img.Source = MinesweeperTextures.CellFlag;
+                    }
+                    else
+                    {
+                        _img.Source = MinesweeperTextures.CellBombWrong;
+                    }
+                }
+                else if (IsMine)
+                {
+                    _img.Source = MinesweeperTextures.CellBomb;
+                }
+                else if (IsUnknown)
+                {
+                    _img.Source = MinesweeperTextures.CellUnknownOpen;
+                }
+                else
+                {
+                    _img.Source = GetNumberCell(AdjacentMines);
+                }
                 return;
             }
-            if (IsFlagged)
-            {
-                _img.Source = MinesweeperTextures.CellFlag;
-                return;
-            }
-            if (IsUnknown)
-            {
-                _img.Source = MinesweeperTextures.CellUnknown;
-                return;
-            }
-            if (!IsOpened)
-            {
-                _img.Source = MinesweeperTextures.CellClose;
-                return;
-            }
-            
         }
 
 

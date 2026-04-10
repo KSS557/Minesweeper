@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 namespace Minesweeper
@@ -83,7 +79,7 @@ namespace Minesweeper
 
         public void SetFlags(int remainingFlags)
         {
-            int v = Math.Max(0, Math.Min(999, remainingFlags));
+            int v = Math.Max(-99, Math.Min(999, remainingFlags));
             for (int i = 2; i >= 0; i--)
             {
                 int digit = v % 10;

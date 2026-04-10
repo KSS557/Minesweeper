@@ -94,6 +94,8 @@ namespace Minesweeper
             _window.BoardCanvas.Width = canvasWidth;
             _window.BoardCanvas.Height = canvasHeight;
 
+            _headerPanel.SetFlags(_mineCount);
+
             Application.Current.Dispatcher.BeginInvoke(() =>
             {
                 const int scrollbarSize = 17;
@@ -137,7 +139,6 @@ namespace Minesweeper
 
             img.MouseLeftButtonUp += (s, e) =>
             {
-                FinalizeCellOpen(cell);
                 
                 if (!_gameStarted) 
                 {
@@ -146,6 +147,7 @@ namespace Minesweeper
                     StartTimer(); 
                 }
 
+                FinalizeCellOpen(cell);
                 PressedUpCell(cell);
             };
 
@@ -394,10 +396,7 @@ namespace Minesweeper
             }
             int totalSafe = _width * _height - _mineCount;
             if (opened == totalSafe) SetGameOverState(true);
-            foreach (Image img in _window.BoardCanvas.Children.OfType<Image>())
-            {
-                if (img.Tag is Cell cell && cell.IsMine) cell.IsFlagged = true;
-            }
+            
         }
 
         private void InitializeHeader()
@@ -457,7 +456,7 @@ namespace Minesweeper
             _timer.Stop();
         }
 
-        public void ContyTimer()
+        public void ContinueTimer()
         {
             _timer.Start();
         }
@@ -479,6 +478,12 @@ namespace Minesweeper
         {
             StopTimer();
             //_headerPanel.SetFace(win ? MinesweeperTextures.FaceWin : MinesweeperTextures.FaceLose);
+
+            foreach (Image img in _window.BoardCanvas.Children.OfType<Image>())
+            {
+                if (img.Tag is Cell cell && cell.IsMine) cell.IsFlagged = true;
+            }
+            _gameStarted = false;
             if (win)
             {
                 _headerPanel.SetFace(MinesweeperTextures.FaceWin);
@@ -490,8 +495,5 @@ namespace Minesweeper
                 _window.ShowLoseOverlay();
             }
         }
-
-        
-
     }
 }

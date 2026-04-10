@@ -140,7 +140,7 @@ namespace Minesweeper
         public void HideDialogOverlay()
         {
             DialogOverlay.Visibility = Visibility.Collapsed;
-            _game.ContyTimer();
+            _game.ContinueTimer();
         }
 
         public void ShowWinOverlay()
