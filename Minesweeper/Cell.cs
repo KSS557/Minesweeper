@@ -9,6 +9,7 @@ namespace Minesweeper
     public class Cell : INotifyPropertyChanged
     {
         public event Action<Cell> CellOpened;
+        public event Action<Cell> FlagChanged;
 
         private Image _img;
         private bool _isOpened;
@@ -38,15 +39,23 @@ namespace Minesweeper
             set 
             { 
                 if (_isOpened == value) return;
-                _isOpened = value; OnPropertyChanged(); UpdateTexture();
+                _isOpened = value; OnPropertyChanged(); 
                 if (_isOpened) CellOpened?.Invoke(this);
+                UpdateTexture();
             }
         }
 
         public bool IsFlagged
         {
             get => _isFlagged;
-            set { _isFlagged = value; OnPropertyChanged(); UpdateTexture(); }
+            set 
+            {
+                if (_isFlagged == value) return;
+                _isFlagged = value;
+                OnPropertyChanged();
+                FlagChanged?.Invoke(this);
+                UpdateTexture();
+            }
         }
 
         public bool IsUnknown
@@ -107,63 +116,25 @@ namespace Minesweeper
         private void UpdateTexture()
         {
             if (_img == null) return;
-            
-            if (IsPressedBomb)
-            {
-                _img.Source = MinesweeperTextures.CellBombClick;
-                return;
-            }
 
-            if (!IsOpened)
-            {
-                if (IsPressed)
-                {
-                    _img.Source = MinesweeperTextures.CellIsEmpty;
-                }
-                else if (IsFlagged)
-                {
-                    _img.Source = MinesweeperTextures.CellFlag;
-                    return;
-                }
-                else if (IsUnknown)
-                {
-                    _img.Source = MinesweeperTextures.CellUnknown;
-                    return;
-                }
-                else
-                {
-                    _img.Source = MinesweeperTextures.CellClose;
-                }
-                return;
-            }
+            _img.Source = GetTexture();
+        }
 
-            if (IsOpened)
-            {
-                if (IsFlagged)
-                {
-                    if (IsMine)
-                    {
-                        _img.Source = MinesweeperTextures.CellFlag;
-                    }
-                    else
-                    {
-                        _img.Source = MinesweeperTextures.CellBombWrong;
-                    }
-                }
-                else if (IsMine)
-                {
-                    _img.Source = MinesweeperTextures.CellBomb;
-                }
-                else if (IsUnknown)
-                {
-                    _img.Source = MinesweeperTextures.CellUnknownOpen;
-                }
-                else
-                {
-                    _img.Source = GetNumberCell(AdjacentMines);
-                }
-                return;
-            }
+        private BitmapSource GetTexture()
+        {
+            return IsPressedBomb ? MinesweeperTextures.CellBombClick :
+                   IsOpened switch
+                   {
+                       true when IsFlagged => IsMine ? MinesweeperTextures.CellFlag : MinesweeperTextures.CellBombWrong,
+                       true when IsMine => MinesweeperTextures.CellBomb,
+                       true when IsUnknown => MinesweeperTextures.CellUnknownOpen,
+                       true => GetNumberCell(AdjacentMines),
+
+                       false when IsFlagged => MinesweeperTextures.CellFlag,
+                       false when IsUnknown => MinesweeperTextures.CellUnknown,
+                       false when IsPressed => MinesweeperTextures.CellIsEmpty,
+                       _ => MinesweeperTextures.CellClose
+                   };
         }
 
 

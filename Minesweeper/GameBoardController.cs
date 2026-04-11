@@ -19,6 +19,9 @@ namespace Minesweeper
         private int _width, _height, _mineCount;
 
         private bool _gameStarted = false;
+        private bool _isGameOver = false;
+
+        public bool IsGameOver => _isGameOver;
 
         public GameBoardController(MainWindow window)
         {
@@ -84,6 +87,11 @@ namespace Minesweeper
                 }
             }
 
+            foreach (var cell in cells)
+            {
+                cell.FlagChanged += OnCellFlagChanged;
+            }
+
             PlaceMines(cells);
             CalculateNumbers(cells);
             SubscribeToCellEvents(cells);
@@ -120,10 +128,11 @@ namespace Minesweeper
 
         private void SetupCellEvents(Image img, Cell cell)
         {
-
+            if (_isGameOver) return;
             img.MouseMove += (s, e) =>
             {
-                if(e.LeftButton == MouseButtonState.Pressed)
+                if (_isGameOver) return;
+                if (e.LeftButton == MouseButtonState.Pressed)
                 {
                     PressedMoveCell(cell);
                 }
@@ -131,6 +140,7 @@ namespace Minesweeper
 
             img.MouseLeftButtonDown += (s, e) =>
             {
+                if (_isGameOver) return;
                 if (e.LeftButton == MouseButtonState.Pressed)
                 {
                     PressedMoveCell(cell);
@@ -139,7 +149,7 @@ namespace Minesweeper
 
             img.MouseLeftButtonUp += (s, e) =>
             {
-                
+                if (_isGameOver) return;
                 if (!_gameStarted) 
                 {
                     //TODO ели первый клик на бомбу
@@ -153,10 +163,15 @@ namespace Minesweeper
 
             img.MouseLeave += (s, e) =>
             {
+                if (_isGameOver) return;
                 PressedLeavCell(cell);
             };
 
-            img.MouseRightButtonDown += (s, e) => ToggleFlag(cell);
+            img.MouseRightButtonDown += (s, e) =>
+            {
+                if (_isGameOver) return;
+                ToggleFlag(cell);
+            };
         }
 
         private void PressedMoveCell(Cell cell)
@@ -272,13 +287,13 @@ namespace Minesweeper
                 {
                     if (cells[r, c].AdjacentMines == 0 && !cells[r, c].IsMine)
                     {
-                        cells[r, c].CellOpened += Test;
+                        cells[r, c].CellOpened += OpenNeighborZero;
                     }
                 }
             }
         }
 
-        private void Test(Cell cell)
+        private void OpenNeighborZero(Cell cell)
         {
             if (cell.AdjacentMines == 0)
             {
@@ -294,7 +309,7 @@ namespace Minesweeper
 
         private void FinalizeCellOpen(Cell cell)
         {
-            if (cell.IsFlagged || cell.IsOpened) return;
+            if (cell.IsFlagged || cell.IsOpened || cell.IsUnknown) return;
 
             cell.IsOpened = true;
             cell.IsPressed = false;
@@ -303,7 +318,6 @@ namespace Minesweeper
             {
                 cell.IsPressedBomb = true;
                 SetGameOverState(false);
-                RevealAllMines();
                 return;
             }
             
@@ -359,8 +373,13 @@ namespace Minesweeper
                 cell.IsFlagged = true;
             }
 
+        }
+
+        private void OnCellFlagChanged(Cell cell)
+        {
             _headerPanel.SetFlags(_mineCount - CountFlags());
         }
+
 
         private int CountFlags()
         {
@@ -373,7 +392,7 @@ namespace Minesweeper
             return count;
         }
 
-        private void RevealAllMines()
+        private void RevealAllMines(bool win)
         {
             foreach (Image img in _window.BoardCanvas.Children.OfType<Image>())
             {
@@ -381,7 +400,14 @@ namespace Minesweeper
                 {
                     if (cell.IsMine || (cell.IsFlagged && !cell.IsMine) || (cell.IsUnknown && !cell.IsMine))
                     {
-                        cell.IsOpened = true;
+                        if (win)
+                        {
+                            cell.IsFlagged = true;
+                        }
+                        else
+                        {
+                            cell.IsOpened = true;
+                        }
                     }
                 }
             }
@@ -470,27 +496,29 @@ namespace Minesweeper
 
         public void ResetGame()
         {
+            _isGameOver = false;
             ResetTimer();
             StartGame(_width, _height, _mineCount);
         }
 
         public void SetGameOverState(bool win)
         {
+            _isGameOver = true;
             StopTimer();
             //_headerPanel.SetFace(win ? MinesweeperTextures.FaceWin : MinesweeperTextures.FaceLose);
 
-            foreach (Image img in _window.BoardCanvas.Children.OfType<Image>())
-            {
-                if (img.Tag is Cell cell && cell.IsMine) cell.IsFlagged = true;
-            }
+            
             _gameStarted = false;
             if (win)
             {
                 _headerPanel.SetFace(MinesweeperTextures.FaceWin);
                 _window.ShowWinOverlay();
+                RevealAllMines(win);
+
             }
             else
             {
+                RevealAllMines(win);
                 _headerPanel.SetFace(MinesweeperTextures.FaceLose);
                 _window.ShowLoseOverlay();
             }

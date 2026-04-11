@@ -1,6 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Minesweeper
 {
@@ -80,12 +81,38 @@ namespace Minesweeper
         public void SetFlags(int remainingFlags)
         {
             int v = Math.Max(-99, Math.Min(999, remainingFlags));
-            for (int i = 2; i >= 0; i--)
+
+            if (v >= 0)
             {
-                int digit = v % 10;
-                v /= 10;
-                _flagDigits[i].Source = GetNumberBitmap(digit);
+                for (int i = 2; i >= 0; i--)
+                {
+                    int digit = v % 10;
+                    v /= 10;
+                    _flagDigits[i].Source = GetNumberBitmap(digit);
+                }
             }
+            else
+            {
+                v = -v;
+                int count = Math.Abs(v).ToString().Length;
+                for (int i = 2; i >= 0; i--)
+                {
+                    int digit = v % 10;
+                    v /= 10;
+                    _flagDigits[i].Source = GetNumberBitmap(digit);
+                }
+                if (count == 1)
+                {
+                    _flagDigits[1].Source = GetNumberBitmap(-1);
+                }
+                else if (count == 2)
+                {
+                    _flagDigits[0].Source = GetNumberBitmap(-1);
+                }
+                
+            }
+
+            
         }
 
         private BitmapImage GetNumberBitmap(int digit)
