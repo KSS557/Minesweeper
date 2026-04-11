@@ -12,7 +12,8 @@ namespace Minesweeper
         {
             Orientation = Orientation.Horizontal,
             Margin = new Thickness(5),
-            VerticalAlignment = VerticalAlignment.Top
+            HorizontalAlignment = HorizontalAlignment.Stretch,
+            VerticalAlignment = VerticalAlignment.Center
         };
 
         // Левая панель — таймер 3 цифры
@@ -26,22 +27,33 @@ namespace Minesweeper
 
         public GameHeaderPanel()
         {
+
+            var dockPanel = new DockPanel
+            {
+                LastChildFill = true  // Центр растягивается
+            };
+
+
             // Левая панель — таймер
-            var panelTimer = new StackPanel { Orientation = Orientation.Horizontal };
+            var panelTimer = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Left };
             for (int i = 0; i < 3; i++)
             {
                 _timerDigits[i] = new Image { Width = 26, Height = 46, SnapsToDevicePixels = true, };
                 panelTimer.Children.Add(_timerDigits[i]);
             }
             
+            
 
             // Правая панель — флаги
-            var panelFlag = new StackPanel { Orientation = Orientation.Horizontal };
+            var panelFlag = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
             for (int i = 0; i < 3; i++)
             {
                 _flagDigits[i] = new Image { Width = 26, Height = 46, SnapsToDevicePixels = true, };
                 panelFlag.Children.Add(_flagDigits[i]);
             }
+
+            
+
 
             // Лицо-кнопка (Image внутри Button)
             _faceImage = new Image
@@ -50,12 +62,25 @@ namespace Minesweeper
                 Height = 48,
                 Margin = new Thickness(10, 0, 10, 0),
                 SnapsToDevicePixels = true,
+                HorizontalAlignment = HorizontalAlignment.Center
             };
-            
 
-            Panel.Children.Add(panelTimer);
+
+            DockPanel.SetDock(panelFlag, Dock.Right);
+            dockPanel.Children.Add(panelFlag);
+
+            // Face центр
+            dockPanel.Children.Add(_faceImage);
+
+            // Timer слева
+            DockPanel.SetDock(panelTimer, Dock.Left);
+            dockPanel.Children.Add(panelTimer);
+
+            /*Panel.Children.Add(panelTimer);
             Panel.Children.Add(_faceImage);
-            Panel.Children.Add(panelFlag);
+            Panel.Children.Add(panelFlag);*/
+
+            Panel.Children.Add(dockPanel);
 
             Reset();
         }

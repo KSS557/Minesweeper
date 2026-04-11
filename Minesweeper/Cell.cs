@@ -38,10 +38,7 @@ namespace Minesweeper
             get => _isOpened;
             set 
             { 
-                if (_isOpened == value) return;
-                _isOpened = value; OnPropertyChanged(); 
-                if (_isOpened) CellOpened?.Invoke(this);
-                UpdateTexture();
+                _isOpened = value; OnPropertyChanged(); UpdateTexture();
             }
         }
 

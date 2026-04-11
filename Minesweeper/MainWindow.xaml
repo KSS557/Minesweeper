@@ -143,7 +143,7 @@
             </Grid.RowDefinitions>
 
             <!-- 1. Строка сверху: таймер и кнопки -->
-            <ContentControl x:Name="HeaderContainer" Grid.Row="0" HorizontalAlignment="Center"/>
+            <ContentControl x:Name="HeaderContainer" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
 
             <!-- 2. Строкa с полем -->
             <Grid Grid.Row="1" Margin="0">
