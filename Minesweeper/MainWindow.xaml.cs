@@ -13,6 +13,7 @@ namespace Minesweeper
     {
         private readonly DifficultySettings _difficulty;
         public readonly GameBoardController _game;
+        public readonly Leaderboard _leaderboard;
 
         public int Width => _difficulty.Width;
         public int Height => _difficulty.Height;
@@ -23,22 +24,43 @@ namespace Minesweeper
             InitializeComponent();
             _difficulty = new DifficultySettings(this);
             _game = new GameBoardController(this);
+            _leaderboard = new Leaderboard(this);
 
             AssistDialogOverlay();
             AssistWinOvwrlay();
             AssistLoseOvwrlay();
+
+            BtnLeaderboard.Click += (s, e) => ShowLeaderbord();
+            BtnBackToMenu.Click += (s, e) => ShowSettings();
+
+
         }
 
         public void ShowSettings()
         {
-            PanelSettings.Visibility = Visibility.Visible;
             PanelGame.Visibility = Visibility.Collapsed;
+            Leaderboard.Visibility = Visibility.Collapsed;
+            PanelSettings.Visibility = Visibility.Visible;
             ResizeMode = ResizeMode.NoResize;
 
             if (Application.Current.MainWindow is Window w)
             {
                 w.ResizeMode = ResizeMode.NoResize;
                 ResizeFromCenter(250, 400);
+            }
+        }
+
+        public void ShowLeaderbord()
+        {
+            PanelSettings.Visibility = Visibility.Collapsed;
+            PanelGame.Visibility = Visibility.Collapsed;
+            Leaderboard.Visibility = Visibility.Visible;
+            ResizeMode = ResizeMode.NoResize;
+
+            if (Application.Current.MainWindow is Window w)
+            {
+                w.ResizeMode = ResizeMode.NoResize;
+                ResizeFromCenter(550, 400);
             }
         }
 

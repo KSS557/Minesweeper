@@ -8,12 +8,14 @@ namespace Minesweeper
     public class GameHeaderPanel
     {
         // Панели
-        public StackPanel Panel { get; } = new StackPanel
+
+
+        public Grid Panel = new Grid
         {
-            Orientation = Orientation.Horizontal,
             Margin = new Thickness(5),
             HorizontalAlignment = HorizontalAlignment.Stretch,
             VerticalAlignment = VerticalAlignment.Center
+
         };
 
         // Левая панель — таймер 3 цифры
@@ -27,11 +29,6 @@ namespace Minesweeper
 
         public GameHeaderPanel()
         {
-
-            var dockPanel = new DockPanel
-            {
-                LastChildFill = true  // Центр растягивается
-            };
 
 
             // Левая панель — таймер
@@ -52,35 +49,22 @@ namespace Minesweeper
                 panelFlag.Children.Add(_flagDigits[i]);
             }
 
-            
-
-
-            // Лицо-кнопка (Image внутри Button)
             _faceImage = new Image
             {
                 Width = 48,
                 Height = 48,
                 Margin = new Thickness(10, 0, 10, 0),
                 SnapsToDevicePixels = true,
-                HorizontalAlignment = HorizontalAlignment.Center
             };
 
+            Grid.SetColumn(panelTimer, 0);
+            Panel.Children.Add(panelTimer);
 
-            DockPanel.SetDock(panelFlag, Dock.Right);
-            dockPanel.Children.Add(panelFlag);
-
-            // Face центр
-            dockPanel.Children.Add(_faceImage);
-
-            // Timer слева
-            DockPanel.SetDock(panelTimer, Dock.Left);
-            dockPanel.Children.Add(panelTimer);
-
-            /*Panel.Children.Add(panelTimer);
+            Grid.SetColumn(_faceImage, 1);
             Panel.Children.Add(_faceImage);
-            Panel.Children.Add(panelFlag);*/
 
-            Panel.Children.Add(dockPanel);
+            Grid.SetColumn(panelFlag, 2);
+            Panel.Children.Add(panelFlag);
 
             Reset();
         }

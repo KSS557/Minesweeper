@@ -11,8 +11,7 @@
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen">
     <Grid>
-        <Grid x:Name="PanelSettings"
-              Visibility="Visible">
+        <Grid x:Name="PanelSettings" Visibility="Visible" Margin="0">
 
             <StackPanel Orientation="Vertical" Height="370" Width="220" Margin="5,5,5,0" VerticalAlignment="Top">
 
@@ -95,7 +94,7 @@
 
                         <Button.Style>
                             <Style TargetType="Button">
-                                <Setter Property="Background" Value="LightGray"/>
+                                <Setter Property="Background" Value="Blue"/>
                                 <Setter Property="Foreground" Value="White"/>
                                 <Setter Property="BorderBrush" Value="DarkGray"/>
                                 <Setter Property="BorderThickness" Value="1"/>
@@ -109,6 +108,49 @@
                                                 Padding="{TemplateBinding Padding}">
                                                 <ContentPresenter HorizontalAlignment="Center"
                                                               VerticalAlignment="Center" />
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#3A7BD5"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                        <Setter Property="Cursor" Value="Hand"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter Property="Background" Value="#2C5DAA"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+
+                    </Button>
+
+                    <Button x:Name="BtnLeaderboard"
+                            Content="Таблица лидеров"
+                            Margin="5,10,5,0"
+                            Padding="10,5"
+                            FontSize="14"
+                            HorizontalAlignment="Stretch">
+
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="Blue"/>
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="BorderBrush" Value="DarkGray"/>
+                                <Setter Property="BorderThickness" Value="1"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="5"
+                            Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center" />
                                             </Border>
                                         </ControlTemplate>
                                     </Setter.Value>
@@ -287,6 +329,95 @@
 
             </Grid>
 
+        </Grid>
+
+        <Grid x:Name="Leaderboard" Visibility="Collapsed" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Заголовок -->
+                <RowDefinition Height="*"/>
+                <!-- Таблица -->
+                <RowDefinition Height="Auto"/>
+                <!-- Кнопки -->
+            </Grid.RowDefinitions>
+
+            <!-- Заголовок -->
+            <Border Grid.Row="0" Background="#1E3A8A" CornerRadius="10" Padding="20" Margin="0,0,0,10">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <TextBlock Text="🏆 ТАБЛИЦА ЛИДЕРОВ" 
+                       Foreground="White" 
+                       FontSize="24" 
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"/>
+                    <Button x:Name="BtnBackToMenu" 
+                            Content="← Главное меню" 
+                            Margin="20,0,0,0"
+                            Padding="10,5"
+                            Background="Transparent"
+                            BorderBrush="Transparent"
+                            Foreground="White"
+                            Cursor="Hand"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Кнопки сложности -->
+            <StackPanel Grid.Row="0" 
+                Orientation="Horizontal" 
+                HorizontalAlignment="Center" 
+                Margin="0,60,0,10">
+                <Button x:Name="BtnEasy" Content="Лёгкая" Margin="5" Padding="12,8" Tag="Easy"/>
+                <Button x:Name="BtnMedium" Content="Средняя" Margin="5" Padding="12,8" Tag="Medium"/>
+                <Button x:Name="BtnHard" Content="Сложная" Margin="5" Padding="12,8" Tag="Hard"/>
+                <Button x:Name="BtnCustom" Content="Кастом" Margin="5" Padding="12,8" Tag="Custom"/>
+            </StackPanel>
+
+            <!-- Таблица лидеров -->
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <DataGrid x:Name="LeaderboardTable" 
+                  AutoGenerateColumns="False"
+                  CanUserSortColumns="True"
+                  IsReadOnly="True"
+                  GridLinesVisibility="Horizontal"
+                  HeadersVisibility="Column"
+                  SelectionMode="Single"
+                  Background="White"
+                  BorderThickness="1"
+                  Margin="0,0,0,10">
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="🏆" Width="50" 
+                                    Binding="{Binding Rank}" 
+                                    />
+                        <DataGridTextColumn Header="Игрок" Width="*" 
+                                    Binding="{Binding PlayerName}">
+                            <DataGridTextColumn.CellStyle>
+                                <Style TargetType="DataGridCell">
+                                    <Style.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter Property="Background" Value="#EFF6FF"/>
+                                            <Setter Property="Cursor" Value="Hand"/>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                    <Setter Property="Padding" Value="10,8"/>
+                                </Style>
+                            </DataGridTextColumn.CellStyle>
+                        </DataGridTextColumn>
+                        <DataGridTextColumn Header="Сложность" Width="120" 
+                                    Binding="{Binding Difficulty}" 
+                                    />
+                        <DataGridTextColumn Header="⏱️ Время" Width="100" 
+                                    Binding="{Binding Time}" 
+                                    />
+                    </DataGrid.Columns>
+                </DataGrid>
+            </ScrollViewer>
+
+            <!-- Кнопка "Показать всех" / "Общая таблица" -->
+            <Button Grid.Row="2" x:Name="BtnToggleView" 
+            Content="👤 Показать всех игроков"
+            HorizontalAlignment="Center" 
+            Margin="0,0,0,20"
+            Padding="20,10"/>
         </Grid>
 
     </Grid>
