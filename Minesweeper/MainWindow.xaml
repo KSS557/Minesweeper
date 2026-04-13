@@ -10,10 +10,139 @@
         Width="250"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <Style x:Key="GameButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#3B82F6"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Border" 
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                            <Border.Effect>
+                                <DropShadowEffect Color="#1D4ED8" Opacity="0.3"
+                                              ShadowDepth="1" BlurRadius="4"/>
+                            </Border.Effect>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#2563EB"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#1D4ED8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="MenuButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#3B82F6"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Border" 
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="18"
+                            Width="{TemplateBinding Width}"
+                            Height="{TemplateBinding Height}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            <Border.Effect>
+                                <DropShadowEffect Color="#1D4ED8" 
+                                              Opacity="0.4"
+                                              ShadowDepth="2" 
+                                              BlurRadius="6"/>
+                            </Border.Effect>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#2563EB"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#1D4ED8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GameTitleStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+
+            <!-- Border вокруг текста -->
+            
+
+            <!-- Тень для Border -->
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#1E40AF" 
+                              Opacity="0.4"
+                              ShadowDepth="2" 
+                              BlurRadius="8"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="CustomTitleLabelStyle" TargetType="Label">
+            <Setter Property="Content" Value="🏆 ТАБЛИЦА ЛИДЕРОВ"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Label">
+                        <Border Background="#3B82F6" 
+                        CornerRadius="10" 
+                        Padding="5">
+
+                            <!-- Grid для точного центрирования -->
+                            <Grid>
+                                <TextBlock Text="{TemplateBinding Content}"
+                                   Foreground="White"
+                                   FontSize="24" 
+                                   FontWeight="Bold"
+                                   TextAlignment="Center"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                            </Grid>
+
+                            <Border.Effect>
+                                <DropShadowEffect Color="#1D4ED8" Opacity="0.4" ShadowDepth="2" BlurRadius="8"/>
+                            </Border.Effect>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+    
     <Grid>
         <Grid x:Name="PanelSettings" Visibility="Visible" Margin="0">
-
+    
             <StackPanel Orientation="Vertical" Height="370" Width="220" Margin="5,5,5,0" VerticalAlignment="Top">
+                <Label Content="Настройки игры" Style="{StaticResource CustomTitleLabelStyle}"/>
 
                 <Border BorderBrush="Black" BorderThickness="1" CornerRadius="10" Margin="0">
                     <StackPanel Orientation="Vertical" Margin="0,0,0,0">
@@ -86,90 +215,22 @@
                 <StackPanel Orientation="Vertical" Width="220" VerticalAlignment="Top">
 
                     <Button x:Name="BtnPlay"
-                        Content="Играть"
-                        Margin="5,10,5,0"
-                        Padding="10,5"
-                        FontSize="14"
-                        HorizontalAlignment="Stretch">
-
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Background" Value="Blue"/>
-                                <Setter Property="Foreground" Value="White"/>
-                                <Setter Property="BorderBrush" Value="DarkGray"/>
-                                <Setter Property="BorderThickness" Value="1"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}"
-                                                BorderBrush="{TemplateBinding BorderBrush}"
-                                                BorderThickness="{TemplateBinding BorderThickness}"
-                                                CornerRadius="5"
-                                                Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter HorizontalAlignment="Center"
-                                                              VerticalAlignment="Center" />
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#3A7BD5"/>
-                                        <Setter Property="Foreground" Value="White"/>
-                                        <Setter Property="Cursor" Value="Hand"/>
-                                    </Trigger>
-                                    <Trigger Property="IsPressed" Value="True">
-                                        <Setter Property="Background" Value="#2C5DAA"/>
-                                        <Setter Property="Foreground" Value="White"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-
-                    </Button>
+                            Content="Играть"
+                            Margin="5,10,5,0"
+                            Padding="10,5"
+                            FontSize="14"
+                            HorizontalAlignment="Stretch"
+                            Height="25"
+                            Style="{StaticResource GameButtonStyle}"/>
 
                     <Button x:Name="BtnLeaderboard"
                             Content="Таблица лидеров"
                             Margin="5,10,5,0"
                             Padding="10,5"
                             FontSize="14"
-                            HorizontalAlignment="Stretch">
-
-                        <Button.Style>
-                            <Style TargetType="Button">
-                                <Setter Property="Background" Value="Blue"/>
-                                <Setter Property="Foreground" Value="White"/>
-                                <Setter Property="BorderBrush" Value="DarkGray"/>
-                                <Setter Property="BorderThickness" Value="1"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="5"
-                            Padding="{TemplateBinding Padding}">
-                                                <ContentPresenter HorizontalAlignment="Center"
-                                          VerticalAlignment="Center" />
-                                            </Border>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
-                                <Style.Triggers>
-                                    <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter Property="Background" Value="#3A7BD5"/>
-                                        <Setter Property="Foreground" Value="White"/>
-                                        <Setter Property="Cursor" Value="Hand"/>
-                                    </Trigger>
-                                    <Trigger Property="IsPressed" Value="True">
-                                        <Setter Property="Background" Value="#2C5DAA"/>
-                                        <Setter Property="Foreground" Value="White"/>
-                                    </Trigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Button.Style>
-
-                    </Button>
+                            HorizontalAlignment="Stretch"
+                            Height="25"
+                            Style="{StaticResource GameButtonStyle}"/>
 
                 </StackPanel>
 
@@ -203,7 +264,7 @@
             </Grid>
 
             <Grid x:Name="DialogOverlay" Visibility="Collapsed" Grid.RowSpan="2">
-                
+
                 <Grid.Background>
                     <SolidColorBrush Color="Black" Opacity="0.6" />
                 </Grid.Background>
@@ -246,7 +307,7 @@
                 <Grid.Background>
                     <SolidColorBrush Color="Black" Opacity="0.6" />
                 </Grid.Background>
-                
+
                 <Border HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Background="#80FFFFFF"
@@ -286,7 +347,7 @@
             </Grid>
 
             <Grid x:Name="LoseOverlay" Visibility="Collapsed" Grid.RowSpan="2">
-                
+
                 <Grid.Background>
                     <SolidColorBrush Color="Black" Opacity="0.6" />
                 </Grid.Background>
@@ -331,58 +392,54 @@
 
         </Grid>
 
-        <Grid x:Name="Leaderboard" Visibility="Collapsed" Margin="20">
+        <Grid x:Name="Leaderboard" Visibility="Collapsed" Margin="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <!-- Заголовок -->
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
                 <!-- Таблица -->
+                <RowDefinition/>
+
                 <RowDefinition Height="Auto"/>
                 <!-- Кнопки -->
             </Grid.RowDefinitions>
 
             <!-- Заголовок -->
-            <Border Grid.Row="0" Background="#1E3A8A" CornerRadius="10" Padding="20" Margin="0,0,0,10">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                    <TextBlock Text="🏆 ТАБЛИЦА ЛИДЕРОВ" 
-                       Foreground="White" 
-                       FontSize="24" 
-                       FontWeight="Bold"
-                       VerticalAlignment="Center"/>
-                    <Button x:Name="BtnBackToMenu" 
-                            Content="← Главное меню" 
-                            Margin="20,0,0,0"
-                            Padding="10,5"
-                            Background="Transparent"
-                            BorderBrush="Transparent"
-                            Foreground="White"
-                            Cursor="Hand"/>
-                </StackPanel>
-            </Border>
+            <Button x:Name="BtnBackToMenu" 
+                    Content="←"
+                    Margin="5"
+                    Width="36" Height="36"
+                    Cursor="Hand"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Style="{StaticResource MenuButtonStyle}"/>
+
+            <Label Content="🏆 ТАБЛИЦА ЛИДЕРОВ" Foreground="White" Style="{StaticResource CustomTitleLabelStyle}"/>
 
             <!-- Кнопки сложности -->
-            <StackPanel Grid.Row="0" 
-                Orientation="Horizontal" 
-                HorizontalAlignment="Center" 
-                Margin="0,60,0,10">
-                <Button x:Name="BtnEasy" Content="Лёгкая" Margin="5" Padding="12,8" Tag="Easy"/>
-                <Button x:Name="BtnMedium" Content="Средняя" Margin="5" Padding="12,8" Tag="Medium"/>
-                <Button x:Name="BtnHard" Content="Сложная" Margin="5" Padding="12,8" Tag="Hard"/>
-                <Button x:Name="BtnCustom" Content="Кастом" Margin="5" Padding="12,8" Tag="Custom"/>
+            <StackPanel Grid.Row="1" 
+                        Orientation="Horizontal" 
+                        HorizontalAlignment="Left">
+
+                <Button x:Name="BtnEasy" Content="Лёгкая" Margin="5" Tag="Easy" Style="{StaticResource GameButtonStyle}" Height="20" Width="60"/>
+                <Button x:Name="BtnMedium" Content="Средняя" Margin="5" Tag="Medium" Style="{StaticResource GameButtonStyle}" Height="20" Width="60"/>
+                <Button x:Name="BtnHard" Content="Сложная" Margin="5" Tag="Hard" Style="{StaticResource GameButtonStyle}" Height="20" Width="60"/>
+                <Button x:Name="BtnCustom" Content="Кастомная" Margin="5" Tag="Custom" Style="{StaticResource GameButtonStyle}" Height="20" Width="60"/>
+                
             </StackPanel>
 
             <!-- Таблица лидеров -->
-            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                 <DataGrid x:Name="LeaderboardTable" 
-                  AutoGenerateColumns="False"
-                  CanUserSortColumns="True"
-                  IsReadOnly="True"
-                  GridLinesVisibility="Horizontal"
-                  HeadersVisibility="Column"
-                  SelectionMode="Single"
-                  Background="White"
-                  BorderThickness="1"
-                  Margin="0,0,0,10">
+                          AutoGenerateColumns="False"
+                          CanUserSortColumns="True"
+                          IsReadOnly="True"
+                          GridLinesVisibility="Horizontal"
+                          HeadersVisibility="Column"
+                          SelectionMode="Single"
+                          Background="White"
+                          BorderThickness="1"
+                          Margin="0,0,0,10" SelectionChanged="LeaderboardTable_SelectionChanged">
 
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="🏆" Width="50" 
@@ -402,10 +459,10 @@
                                 </Style>
                             </DataGridTextColumn.CellStyle>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="Сложность" Width="120" 
+                        <DataGridTextColumn Header="Сложность" Width="140" 
                                     Binding="{Binding Difficulty}" 
                                     />
-                        <DataGridTextColumn Header="⏱️ Время" Width="100" 
+                        <DataGridTextColumn Header="⏱️ Время" Width="120" 
                                     Binding="{Binding Time}" 
                                     />
                     </DataGrid.Columns>
@@ -413,11 +470,13 @@
             </ScrollViewer>
 
             <!-- Кнопка "Показать всех" / "Общая таблица" -->
-            <Button Grid.Row="2" x:Name="BtnToggleView" 
-            Content="👤 Показать всех игроков"
-            HorizontalAlignment="Center" 
-            Margin="0,0,0,20"
-            Padding="20,10"/>
+            <Button Grid.Row="3" x:Name="BtnToggleView" 
+                    Content="👤 Показать всех игроков"
+                    HorizontalAlignment="Center" 
+                    Margin="0,0,0,20"
+                    Width="150"
+                    Height="25"
+                    Style="{StaticResource GameButtonStyle}"/>
         </Grid>
 
     </Grid>

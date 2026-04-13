@@ -47,6 +47,8 @@ namespace Minesweeper
             {
                 w.ResizeMode = ResizeMode.NoResize;
                 ResizeFromCenter(250, 400);
+                w.MaxWidth = double.PositiveInfinity;
+                w.MaxHeight = double.PositiveInfinity;
             }
         }
 
@@ -61,6 +63,8 @@ namespace Minesweeper
             {
                 w.ResizeMode = ResizeMode.NoResize;
                 ResizeFromCenter(550, 400);
+                w.MaxWidth = double.PositiveInfinity;
+                w.MaxHeight = double.PositiveInfinity;
             }
         }
 
@@ -183,6 +187,11 @@ namespace Minesweeper
         public void HideLoseOverlay()
         {
             LoseOverlay.Visibility = Visibility.Collapsed;
+        }
+
+        private void LeaderboardTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
         }
     }
 }
