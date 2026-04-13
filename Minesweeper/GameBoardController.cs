@@ -515,5 +515,7 @@ namespace Minesweeper
                 _window.ShowLoseOverlay();
             }
         }
+
+
     }
 }

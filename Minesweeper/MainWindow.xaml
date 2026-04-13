@@ -18,19 +18,29 @@
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="Margin" Value="1"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Border" 
+                        <Grid>
+                            <!-- Тень как фон под кнопкой -->
+                            <Border Background="#1D4ED8"
+                            Opacity="0.2"
+                            CornerRadius="8"
+                            Margin="1"/>
+
+                            <!-- Сама кнопка без эффекта -->
+                            <Border x:Name="Border"
                             Background="{TemplateBinding Background}"
-                            CornerRadius="8">
-                            <ContentPresenter HorizontalAlignment="Center"
+                            CornerRadius="8"
+                            UseLayoutRounding="True"
+                            SnapsToDevicePixels="True">
+                                <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>
-                            <Border.Effect>
-                                <DropShadowEffect Color="#1D4ED8" Opacity="0.3"
-                                              ShadowDepth="1" BlurRadius="4"/>
-                            </Border.Effect>
-                        </Border>
+                            </Border>
+                        </Grid>
+
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Border" Property="Background" Value="#2563EB"/>
@@ -285,16 +295,15 @@
                         HorizontalAlignment="Center"
                         Margin="0,0,0,10" />
 
-                        <Button
-                        x:Name="BtnResume"
-                        Content="Продолжить"
-                        Height="30"
-                        Margin="0,0,0,5" />
+                        <Button x:Name="BtnResume"
+                                Content="Продолжить"
+                                Height="30"
+                                Style="{StaticResource GameButtonStyle}"/>
 
-                        <Button
-                        x:Name="BtnQuit"
-                        Content="Выйти в меню"
-                        Height="30" />
+                        <Button x:Name="BtnQuit"
+                                Content="Выйти в меню"
+                                Height="30" 
+                                Style="{StaticResource GameButtonStyle}"/>
 
                     </StackPanel>
 
@@ -324,21 +333,21 @@
                         HorizontalAlignment="Center"
                         Margin="0,0,0,10" />
 
-                        <Button
-                        x:Name="BtnWinLeaderBoard"
-                        Content="Таблица лидеров"
-                        Height="30"
-                        Margin="0,0,0,5" />
+                        <Button x:Name="BtnWinLeaderBoard"
+                                Content="Таблица лидеров"
+                                Height="30"
+                                Margin="0,0,0,5" 
+                                Style="{StaticResource GameButtonStyle}"/>
 
-                        <Button
-                        x:Name="BtnWinQuit"
-                        Content="Выйти в меню"
-                        Height="30" />
+                        <Button x:Name="BtnWinQuit"
+                                Content="Выйти в меню"
+                                Height="30" 
+                                Style="{StaticResource GameButtonStyle}"/>
 
-                        <Button
-                        x:Name="BtnWinExit"
-                        Content="Закрыть"
-                        Height="30" />
+                        <Button x:Name="BtnWinExit"
+                                Content="Закрыть"
+                                Height="30" 
+                                Style="{StaticResource GameButtonStyle}"/>
 
                     </StackPanel>
 
@@ -368,21 +377,23 @@
                         HorizontalAlignment="Center"
                         Margin="0,0,0,10" />
 
-                        <Button
-                        x:Name="BtnLoseRestart"
-                        Content="Заново"
-                        Height="30"
-                        Margin="0,0,0,5" />
+                        <Button x:Name="BtnLoseRestart"
+                                Content="Заново"
+                                Height="30"
+                                Width="100"
+                                Style="{StaticResource GameButtonStyle}"/>
 
-                        <Button
-                        x:Name="BtnLouseQuit"
-                        Content="Выйти в меню"
-                        Height="30" />
+                        <Button x:Name="BtnLouseQuit"
+                                Content="Выйти в меню"
+                                Height="30" 
+                                Width="100"
+                                Style="{StaticResource GameButtonStyle}"/>
 
-                        <Button
-                        x:Name="BtnLoseExit"
-                        Content="Закрыть"
-                        Height="30" />
+                        <Button x:Name="BtnLoseExit"
+                                Content="Закрыть"
+                                Height="30" 
+                                Width="100"
+                                Style="{StaticResource GameButtonStyle}"/>
 
                     </StackPanel>
 
