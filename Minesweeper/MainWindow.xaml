@@ -288,21 +288,21 @@
                         CornerRadius="10">
 
                     <StackPanel>
-                        <TextBlock
-                        Text="Пауза"
-                        FontWeight="Bold"
-                        FontSize="16"
-                        HorizontalAlignment="Center"
-                        Margin="0,0,0,10" />
+                        <TextBlock Text="Пауза"
+                                   FontWeight="Bold"
+                                   FontSize="16"
+                                   HorizontalAlignment="Center"/>
 
                         <Button x:Name="BtnResume"
                                 Content="Продолжить"
                                 Height="30"
+                                Width="100"
                                 Style="{StaticResource GameButtonStyle}"/>
 
                         <Button x:Name="BtnQuit"
                                 Content="Выйти в меню"
                                 Height="30" 
+                                Width="100"
                                 Style="{StaticResource GameButtonStyle}"/>
 
                     </StackPanel>
@@ -326,27 +326,27 @@
                         CornerRadius="10">
 
                     <StackPanel>
-                        <TextBlock
-                        Text="Победа"
-                        FontWeight="Bold"
-                        FontSize="16"
-                        HorizontalAlignment="Center"
-                        Margin="0,0,0,10" />
+                        <TextBlock Text="Победа"
+                                   FontWeight="Bold"
+                                   FontSize="16"
+                                   HorizontalAlignment="Center"/>
 
                         <Button x:Name="BtnWinLeaderBoard"
-                                Content="Таблица лидеров"
+                                Content="Запись рекорда"
                                 Height="30"
-                                Margin="0,0,0,5" 
+                                Width="100"
                                 Style="{StaticResource GameButtonStyle}"/>
 
                         <Button x:Name="BtnWinQuit"
                                 Content="Выйти в меню"
                                 Height="30" 
+                                Width="100"
                                 Style="{StaticResource GameButtonStyle}"/>
 
                         <Button x:Name="BtnWinExit"
                                 Content="Закрыть"
                                 Height="30" 
+                                Width="100"
                                 Style="{StaticResource GameButtonStyle}"/>
 
                     </StackPanel>
@@ -370,12 +370,10 @@
                         CornerRadius="10">
 
                     <StackPanel>
-                        <TextBlock
-                        Text="Проигрыш"
-                        FontWeight="Bold"
-                        FontSize="16"
-                        HorizontalAlignment="Center"
-                        Margin="0,0,0,10" />
+                        <TextBlock Text="Проигрыш"
+                                   FontWeight="Bold"
+                                   FontSize="16"
+                                   HorizontalAlignment="Center"/>
 
                         <Button x:Name="BtnLoseRestart"
                                 Content="Заново"

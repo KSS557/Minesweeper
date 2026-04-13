@@ -22,8 +22,9 @@ namespace Minesweeper
         private bool _gameStarted;
         private bool _isGameOver;
         private bool _firstOpen;
-
+        private bool _isWin;
         public bool IsGameOver => _isGameOver;
+        public bool IsWin => _isWin;
 
         public GameBoardController(MainWindow window)
         {
@@ -499,6 +500,7 @@ namespace Minesweeper
         {
             if (_isGameOver) return;
             _isGameOver = true;
+            _isWin = win;
             StopTimer();
             
             _gameStarted = false;

@@ -105,15 +105,32 @@ namespace Minesweeper
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
-            if (e.Key == Key.Escape && WinOverlay.Visibility == Visibility.Collapsed && LoseOverlay.Visibility == Visibility.Collapsed)
+            if (_game.IsGameOver)
             {
-                if (DialogOverlay.Visibility == Visibility.Collapsed)
-                    ShowDialogOverlay();
+                if (_game.IsWin)
+                {
+                    if (WinOverlay.Visibility == Visibility.Collapsed)
+                        ShowWinOverlay();  // Показать победу
+                    else
+                        HideWinOverlay();
+                }
                 else
-                    HideDialogOverlay();
-
-                e.Handled = true;
+                {
+                    if (LoseOverlay.Visibility == Visibility.Collapsed)
+                        ShowLoseOverlay(); // Показать поражение
+                    else
+                        HideLoseOverlay();
+                }
             }
+            else if (DialogOverlay.Visibility == Visibility.Collapsed)
+            {
+                ShowDialogOverlay();
+            }
+            else
+            {
+                HideDialogOverlay();
+            }
+
 
             base.OnKeyDown(e);
         }
