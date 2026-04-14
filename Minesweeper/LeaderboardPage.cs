@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace Minesweeper
 {
@@ -30,6 +32,14 @@ namespace Minesweeper
             _window.PreviewMouseDown += Window_PreviewMouseDown;
 
             _window.BtnLeaderboardSave.Click += BtnSaveRecord_Click;
+
+
+            _window.BtnEasy.Click += DifficultyButton_Click;
+            _window.BtnMedium.Click += DifficultyButton_Click;
+            _window.BtnHard.Click += DifficultyButton_Click;
+            _window.BtnCustom.Click += DifficultyButton_Click;
+
+            LoadLeaderboard(1);
         }
 
         private void BtnSaveRecord_Click(object sender, RoutedEventArgs e)
@@ -44,7 +54,7 @@ namespace Minesweeper
                 return;
             }
             Debug.WriteLine($"{nickname}, {difficulty}, {gameTime}, {DateTime.Now}");
-            _leaderboard.AddRecord(nickname, _difficulty, gameTime);
+            _window._leaderboard.AddRecord(nickname, _difficulty, gameTime);
 
             _window.TextBoxLeaderboard.Clear();
 
@@ -109,6 +119,60 @@ namespace Minesweeper
         {
             _window.TextBoxLeaderboard.KeyDown -= TextBoxLeaderboard_KeyDown;
             _window.TextBoxLeaderboard.TextChanged -= TextBoxLeaderboard_TextChanged;
+        }
+
+        private void DifficultyButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is Button btn)
+            {
+                
+
+                //btn.Background = new SolidColorBrush(Colors.LightBlue);  // или ваш стиль
+                //btn.IsEnabled = false;  // визуально "активна"
+
+                string difficultyTag = btn.Tag.ToString();
+                int difficulty = GetDifficultyFromTag(difficultyTag);
+
+                LoadLeaderboard(difficulty);
+            }
+        }
+
+        private int GetDifficultyFromTag(string tag)
+        {
+            return tag switch
+            {
+                "Easy" => 1,
+                "Medium" => 2,
+                "Hard" => 3,
+                "Custom" => 4,
+                _ => 1
+            };
+        }
+
+        private void LoadLeaderboard(int difficulty)
+        {
+            try
+            {
+                var leaderboard = new Leaderboard();  // ваш класс
+                DataTable table = leaderboard.GetTopByDifficulty(difficulty);
+
+                // ✅ Привязка DataTable к DataGrid
+                _window.LeaderboardTable.ItemsSource = table.DefaultView;
+
+                // ✅ Добавляем колонку Rank (номер места)
+                if (!table.Columns.Contains("Rank"))
+                {
+                    table.Columns.Add("Rank", typeof(int));
+                    for (int i = 0; i < table.Rows.Count; i++)
+                    {
+                        table.Rows[i]["Rank"] = i + 1;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка загрузки лидерборда: {ex.Message}");
+            }
         }
     }
 }

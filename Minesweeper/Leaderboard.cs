@@ -1,5 +1,6 @@
 ﻿using Microsoft.Data.Sqlite;
 using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 
@@ -23,11 +24,11 @@ namespace Minesweeper
 
             string createTable = @"
                 CREATE TABLE IF NOT EXISTS Leaderboards (
-                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Nickname TEXT NOT NULL,
-                    Difficulty INTEGER NOT NULL,
-                    Time DATETIME NOT NULL,
-                    Date DATETIME NOT NULL
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    nickname TEXT NOT NULL,
+                    difficulty INTEGER NOT NULL,
+                    time DATETIME NOT NULL,
+                    date DATETIME NOT NULL
                 )";
 
             using var cmd = new SqliteCommand(createTable, _connection);
@@ -37,7 +38,7 @@ namespace Minesweeper
         public void AddRecord(string nickname, int difficulty, TimeOnly time)
         {
             string insert = @"
-                INSERT INTO Leaderboard (Nickname, Difficulty, Time, Date)
+                INSERT INTO Leaderboards (nickname, difficulty, time, date)
                 VALUES (@nickname, @difficulty, @time, @date)";
 
             using var cmd = new SqliteCommand(insert, _connection);
@@ -46,22 +47,22 @@ namespace Minesweeper
             cmd.Parameters.AddWithValue("@time", time);
             cmd.Parameters.AddWithValue("@date", DateTime.Now);
             cmd.ExecuteNonQuery();
+            Debug.WriteLine(cmd.Parameters);
         }
 
         public DataTable GetTopByDifficulty(int difficulty)
         {
             var table = new DataTable();
             string select = @"
-                SELECT Id, Nickname, Difficulty, Time, Date 
-                FROM Leaderboard 
-                WHERE Difficulty = @diff 
-                ORDER BY Time ASC, Date DESC 
-                LIMIT 10";
+                SELECT nickname, difficulty, time, date 
+                FROM Leaderboards 
+                WHERE difficulty = @diff 
+                ORDER BY time ASC 
+                LIMIT 100";
 
             using var cmd = new SqliteCommand(select, _connection);
             cmd.Parameters.AddWithValue("@diff", difficulty);
 
-            // ✅ Используем SqliteDataReader → DataTable
             using var reader = cmd.ExecuteReader();
             table.Load(reader);
 

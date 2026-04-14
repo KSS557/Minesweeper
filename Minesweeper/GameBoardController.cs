@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
@@ -19,35 +20,13 @@ namespace Minesweeper
         private bool _isGameOver;
         private bool _firstOpen;
         private bool _isWin;
-        private bool _timerIsActive = false;
+        private bool _timerIsActive;
 
         public bool IsGameOver => _isGameOver;
         public bool IsWin => _isWin;
         public int DisplaySeconds => (int)(_elapsedMilliseconds / 1000);
 
-        public string LeaderboardTime
-        {
-            get
-            {
-                int ms = (int)(_elapsedMilliseconds % 1000);
-                int totalSeconds = DisplaySeconds;
-                int hours = totalSeconds / 3600;
-                int minutes = (totalSeconds % 3600) / 60;
-                int seconds = totalSeconds % 60;
-
-                return hours > 0
-                    ? $"{hours:D2}:{minutes:D2}:{seconds:D2}.{ms:D3}"
-                    : $"{minutes:D2}:{seconds:D2}.{ms:D3}";
-            }
-        }
-
         public TimeOnly Time => TimeOnly.FromTimeSpan(TimeSpan.FromMilliseconds(_elapsedMilliseconds));
-
-        public DateTime GameTimeAsDateTime => new DateTime(1, 1, 1,
-            (int)(_elapsedMilliseconds / 3600000),
-            (int)((_elapsedMilliseconds % 3600000) / 60000),
-            (int)((_elapsedMilliseconds % 60000) / 1000));
-
 
         public GameBoardController(MainWindow window)
         {
@@ -55,7 +34,7 @@ namespace Minesweeper
 
             InitializeHeader();
 
-            _timer = new System.Timers.Timer(10);
+            _timer = new System.Timers.Timer(1);
             _timer.Elapsed += Timer_Tick;
         }
 
@@ -492,6 +471,13 @@ namespace Minesweeper
             if (!_timerIsActive || _isGameOver)
             {
                 StopTimer();
+                return;
+            }
+            
+            var app = Application.Current;
+            if (app?.Dispatcher == null)
+            {
+                _timer?.Stop();
                 return;
             }
 

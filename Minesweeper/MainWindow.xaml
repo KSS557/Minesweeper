@@ -54,6 +54,8 @@
             </Setter>
         </Style>
 
+        
+
         <Style x:Key="MenuButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#3B82F6"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -513,16 +515,11 @@
         <Grid x:Name="Leaderboard" Visibility="Collapsed" Margin="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <!-- Заголовок -->
                 <RowDefinition Height="Auto"/>
-                <!-- Таблица -->
-                <RowDefinition/>
-
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
-                <!-- Кнопки -->
             </Grid.RowDefinitions>
 
-            <!-- Заголовок -->
             <Button x:Name="BtnBackToMenu" 
                     Content="←"
                     Margin="5"
@@ -534,7 +531,6 @@
 
             <Label Content="🏆 ТАБЛИЦА ЛИДЕРОВ" Foreground="White" Style="{StaticResource CustomTitleLabelStyle}"/>
 
-            <!-- Кнопки сложности -->
             <StackPanel Grid.Row="1" 
                         Orientation="Horizontal" 
                         HorizontalAlignment="Left">
@@ -546,7 +542,6 @@
                 
             </StackPanel>
 
-            <!-- Таблица лидеров -->
             <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
                 <DataGrid x:Name="LeaderboardTable" 
                           AutoGenerateColumns="False"
@@ -561,10 +556,9 @@
 
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="🏆" Width="50" 
-                                    Binding="{Binding Rank}" 
-                                    />
+                                    Binding="{Binding Rank}" />
                         <DataGridTextColumn Header="Игрок" Width="*" 
-                                    Binding="{Binding PlayerName}">
+                                    Binding="{Binding nickname}">
                             <DataGridTextColumn.CellStyle>
                                 <Style TargetType="DataGridCell">
                                     <Style.Triggers>
@@ -578,18 +572,16 @@
                             </DataGridTextColumn.CellStyle>
                         </DataGridTextColumn>
                         <DataGridTextColumn Header="Сложность" Width="140" 
-                                    Binding="{Binding Difficulty}" 
-                                    />
+                                    Binding="{Binding difficulty}" />
                         <DataGridTextColumn Header="⏱️ Время" Width="110" 
-                                    Binding="{Binding Time}"/>
+                                    Binding="{Binding time}" />
                         
                         <DataGridTextColumn Header="Дата" Width="110" 
-                                    Binding="{Binding Date}"/>
+                                    Binding="{Binding date}"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </ScrollViewer>
 
-            <!-- Кнопка "Показать всех" / "Общая таблица" -->
             <Button Grid.Row="3" x:Name="BtnToggleView" 
                     Content="👤 Показать всех игроков"
                     HorizontalAlignment="Center" 
