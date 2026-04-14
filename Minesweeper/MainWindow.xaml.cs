@@ -14,6 +14,7 @@ namespace Minesweeper
         private readonly DifficultySettings _difficulty;
         public readonly GameBoardController _game;
         public readonly Leaderboard _leaderboard;
+        public readonly LeaderboardPage _leaderboardPage;
 
         public int Width => _difficulty.Width;
         public int Height => _difficulty.Height;
@@ -24,11 +25,13 @@ namespace Minesweeper
             InitializeComponent();
             _difficulty = new DifficultySettings(this);
             _game = new GameBoardController(this);
-            _leaderboard = new Leaderboard(this);
+            _leaderboard = new Leaderboard();
+            _leaderboardPage = new LeaderboardPage(this);
 
             AssistDialogOverlay();
             AssistWinOvwrlay();
             AssistLoseOvwrlay();
+            AssistLeaderboardOvwrlay();
 
             BtnLeaderboard.Click += (s, e) => ShowLeaderbord();
             BtnBackToMenu.Click += (s, e) => ShowSettings();
@@ -54,8 +57,8 @@ namespace Minesweeper
 
         public void ShowLeaderbord()
         {
-            PanelSettings.Visibility = Visibility.Collapsed;
             PanelGame.Visibility = Visibility.Collapsed;
+            PanelSettings.Visibility = Visibility.Collapsed;
             Leaderboard.Visibility = Visibility.Visible;
             ResizeMode = ResizeMode.NoResize;
 
@@ -105,39 +108,48 @@ namespace Minesweeper
 
         protected override void OnKeyDown(KeyEventArgs e)
         {
+            if (e.Key != Key.Escape) return;
+
             if (_game.IsGameOver)
             {
                 if (_game.IsWin)
-                {
+                {   
+                    if (LeaderboardOverlay.Visibility == Visibility.Visible)
+                        HideLeaderboardOverlay();
+                    
                     if (WinOverlay.Visibility == Visibility.Collapsed)
-                        ShowWinOverlay();  // Показать победу
+                        ShowWinOverlay();
                     else
                         HideWinOverlay();
                 }
                 else
                 {
                     if (LoseOverlay.Visibility == Visibility.Collapsed)
-                        ShowLoseOverlay(); // Показать поражение
+                        ShowLoseOverlay();
                     else
                         HideLoseOverlay();
                 }
             }
-            else if (DialogOverlay.Visibility == Visibility.Collapsed)
+            else if (DialogOverlay.Visibility == Visibility.Visible)
             {
-                ShowDialogOverlay();
+                HideDialogOverlay();
+                _game.ContinueTimer();
             }
             else
             {
-                HideDialogOverlay();
+                ShowDialogOverlay();
             }
-
 
             base.OnKeyDown(e);
         }
 
         private void AssistDialogOverlay()
         {
-            BtnResume.Click += (s, e) => HideDialogOverlay();
+            BtnResume.Click += (s, e) =>
+            {
+                HideDialogOverlay();
+                _game.ContinueTimer();
+            };
             BtnQuit.Click += (s, e) =>
             {
                 HideDialogOverlay();
@@ -147,9 +159,10 @@ namespace Minesweeper
 
         private void AssistWinOvwrlay()
         {
-            BtnWinLeaderBoard.Click += (s, e) =>
+            BtnWinLeaderboard.Click += (s, e) =>
             {
-                //TODO лидер борд
+                HideWinOverlay();
+                ShowLeaderboardOverlay();
             };
             BtnWinQuit.Click += (s, e) =>
             {
@@ -157,6 +170,16 @@ namespace Minesweeper
                 ShowSettings();
             };
             BtnWinExit.Click += (s, e) => HideWinOverlay();
+        }
+
+        private void AssistLeaderboardOvwrlay()
+        {
+
+            BtnLeaderboardExit.Click += (s, e) =>
+            {
+                HideLeaderboardOverlay();
+                ShowWinOverlay();
+            };
         }
 
         private void AssistLoseOvwrlay()
@@ -176,14 +199,16 @@ namespace Minesweeper
 
         public void ShowDialogOverlay()
         {
-            DialogOverlay.Visibility = Visibility.Visible;
-            _game.StopTimer();
+            if (!_game.IsGameOver && PanelGame.Visibility == Visibility.Visible)
+            {
+                DialogOverlay.Visibility = Visibility.Visible;
+                _game.StopTimer();
+            }
         }
 
         public void HideDialogOverlay()
         {
             DialogOverlay.Visibility = Visibility.Collapsed;
-            _game.ContinueTimer();
         }
 
         public void ShowWinOverlay()
@@ -206,9 +231,20 @@ namespace Minesweeper
             LoseOverlay.Visibility = Visibility.Collapsed;
         }
 
+        public void ShowLeaderboardOverlay()
+        {
+            LeaderboardOverlay.Visibility = Visibility.Visible;
+        }
+
+        public void HideLeaderboardOverlay()
+        {
+            LeaderboardOverlay.Visibility = Visibility.Collapsed;
+        }
+
         private void LeaderboardTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
 
         }
+
     }
 }

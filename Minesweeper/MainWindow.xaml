@@ -115,10 +115,10 @@
         </Style>
 
         <Style x:Key="CustomTitleLabelStyle" TargetType="Label">
-            <Setter Property="Content" Value="🏆 ТАБЛИЦА ЛИДЕРОВ"/>
             <Setter Property="Margin" Value="0,0,0,10"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="FontSize" Value="24"/>
 
             <Setter Property="Template">
                 <Setter.Value>
@@ -130,18 +130,86 @@
                             <!-- Grid для точного центрирования -->
                             <Grid>
                                 <TextBlock Text="{TemplateBinding Content}"
-                                   Foreground="White"
-                                   FontSize="24" 
-                                   FontWeight="Bold"
-                                   TextAlignment="Center"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
+                                           Foreground="White"
+                                           FontWeight="Bold"
+                                           TextAlignment="Center"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
                             </Grid>
 
                             <Border.Effect>
-                                <DropShadowEffect Color="#1D4ED8" Opacity="0.4" ShadowDepth="2" BlurRadius="8"/>
+                                <DropShadowEffect Color="#1D4ED8" Opacity="0.4" ShadowDepth="1" BlurRadius="0"/>
                             </Border.Effect>
                         </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="LeaderboardTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="Width" Value="200"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="Padding" Value="1"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Foreground" Value="#1F2937"/>
+            <Setter Property="CaretBrush" Value="#3B82F6"/>
+            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="Background" Value="#F9FAFB"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="#6B7280" Opacity="0.1" ShadowDepth="0" BlurRadius="6"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid>
+                            <Border x:Name="Border"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="8">
+                                <ScrollViewer x:Name="PART_ContentHost" 
+                                              Margin="{TemplateBinding Padding}"/>
+                            </Border>
+
+                            <TextBlock x:Name="PlaceholderTextBlock"
+                                       Text="Введите ник..."
+                                       Foreground="#9CA3AF"
+                                       FontSize="14"
+                                       Margin="6,0,0,0"
+                                       IsHitTestVisible="False"
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Left"
+                                       Visibility="Collapsed"/>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#3B82F6"/>
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect Color="#3B82F6" Opacity="0.3" BlurRadius="8"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="PlaceholderTextBlock" Property="Visibility" Value="Collapsed"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Border" Property="BorderBrush" Value="#6B7280"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="Text" Value="" />
+                                    <Condition Property="IsFocused" Value="False" />
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="PlaceholderTextBlock" Property="Visibility" Value="Visible"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -156,7 +224,9 @@
 
                 <Border BorderBrush="Black" BorderThickness="1" CornerRadius="10" Margin="0">
                     <StackPanel Orientation="Vertical" Margin="0,0,0,0">
-                        <TextBlock Text="Сложность" VerticalAlignment="Center" TextAlignment="Center"/>
+                        <Label Content="Сложность" Margin="3" FontSize="14" Width="90" Height="23" Style="{StaticResource CustomTitleLabelStyle}"/>
+
+
                         <StackPanel VerticalAlignment="Center" Width="220" Orientation="Horizontal">
                             <StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="5,5,5,5">
 
@@ -189,20 +259,20 @@
                                     <TextBlock Text="Размеры: " VerticalAlignment="Center"/>
 
                                     <TextBox x:Name="TxtWidth"
-                                     Text="9"
-                                     Width="20"
-                                     Margin="0,0,5,0"
-                                     IsEnabled="{Binding IsChecked, ElementName=Custom}"/>
+                                             Text="9"
+                                             Width="20"
+                                             Margin="0,0,5,0"
+                                             IsEnabled="{Binding IsChecked, ElementName=Custom}"/>
 
                                     <TextBlock Text="x"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,5,0" />
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,5,0" />
 
                                     <TextBox x:Name="TxtHeight"
-                                     Text="9"
-                                     Width="20"
-                                     Margin="0,0,10,0"
-                                     IsEnabled="{Binding IsChecked, ElementName=Custom}"/>
+                                             Text="9"
+                                             Width="20"
+                                             Margin="0,0,10,0"
+                                             IsEnabled="{Binding IsChecked, ElementName=Custom}"/>
 
                                 </StackPanel>
 
@@ -211,9 +281,9 @@
                                     <TextBlock Text="Мины: " VerticalAlignment="Center"/>
 
                                     <TextBox x:Name="Mine"
-                                     Text="10"
-                                     Width="35"
-                                     IsEnabled="{Binding IsChecked, ElementName=Custom}"/>
+                                             Text="10"
+                                             Width="35"
+                                             IsEnabled="{Binding IsChecked, ElementName=Custom}"/>
 
                                 </StackPanel>
 
@@ -249,16 +319,13 @@
 
         <Grid x:Name="PanelGame" Visibility="Collapsed" Margin="0">
 
-            <!-- Строки игровые: 0 — таймер и кнопки, 1 — поле -->
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <!-- 1. Строка сверху: таймер и кнопки -->
             <ContentControl x:Name="HeaderContainer" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
 
-            <!-- 2. Строкa с полем -->
             <Grid Grid.Row="1" Margin="0">
 
                 <ScrollViewer x:Name="GameScrollViewer"
@@ -266,7 +333,6 @@
                               VerticalScrollBarVisibility="Auto"
                               PreviewMouseWheel="GameScrollViewer_PreviewMouseWheel">
 
-                    <!-- Canvas как "полотно" для фикс. позиций, как в html -->
                     <Canvas x:Name="BoardCanvas" Margin="0" />
 
                 </ScrollViewer>
@@ -331,7 +397,7 @@
                                    FontSize="16"
                                    HorizontalAlignment="Center"/>
 
-                        <Button x:Name="BtnWinLeaderBoard"
+                        <Button x:Name="BtnWinLeaderboard"
                                 Content="Запись рекорда"
                                 Height="30"
                                 Width="100"
@@ -345,6 +411,49 @@
 
                         <Button x:Name="BtnWinExit"
                                 Content="Закрыть"
+                                Height="30" 
+                                Width="100"
+                                Style="{StaticResource GameButtonStyle}"/>
+
+                    </StackPanel>
+
+                </Border>
+
+            </Grid>
+
+            <Grid x:Name="LeaderboardOverlay" Visibility="Collapsed" Grid.RowSpan="2">
+
+                <Grid.Background>
+                    <SolidColorBrush Color="Black" Opacity="0.6" />
+                </Grid.Background>
+
+                <Border HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Background="#80FFFFFF"
+                        BorderBrush="DarkGray"
+                        BorderThickness="1"
+                        Padding="50"
+                        CornerRadius="10">
+
+                    <StackPanel>
+                        <TextBlock Text="Запись рекорда"
+                                   FontWeight="Bold"
+                                   FontSize="16"
+                                   HorizontalAlignment="Center"/>
+
+                        <TextBox x:Name="TextBoxLeaderboard"
+                                 Height="30"
+                                 Width="100"
+                                 Style="{StaticResource LeaderboardTextBoxStyle}"/>
+
+                        <Button x:Name="BtnLeaderboardSave"
+                                Content="Сохранить"
+                                Height="30" 
+                                Width="100"
+                                Style="{StaticResource GameButtonStyle}"/>
+
+                        <Button x:Name="BtnLeaderboardExit"
+                                Content="Отмена"
                                 Height="30" 
                                 Width="100"
                                 Style="{StaticResource GameButtonStyle}"/>
@@ -471,9 +580,11 @@
                         <DataGridTextColumn Header="Сложность" Width="140" 
                                     Binding="{Binding Difficulty}" 
                                     />
-                        <DataGridTextColumn Header="⏱️ Время" Width="120" 
-                                    Binding="{Binding Time}" 
-                                    />
+                        <DataGridTextColumn Header="⏱️ Время" Width="110" 
+                                    Binding="{Binding Time}"/>
+                        
+                        <DataGridTextColumn Header="Дата" Width="110" 
+                                    Binding="{Binding Date}"/>
                     </DataGrid.Columns>
                 </DataGrid>
             </ScrollViewer>

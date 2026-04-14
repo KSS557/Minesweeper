@@ -1,30 +1,53 @@
-﻿using System.Diagnostics;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 namespace Minesweeper
 {
     public class GameBoardController
     {
         public readonly MainWindow _window;
-        private readonly DispatcherTimer _timer = new DispatcherTimer();
+        private readonly System.Timers.Timer _timer;
         private GameHeaderPanel _headerPanel;
-
-        private int _elapsedSeconds = 0;
 
         private int _width, _height, _mineCount;
         private Cell[,] _cells;
+        private long _elapsedMilliseconds = 0;
 
         private bool _gameStarted;
         private bool _isGameOver;
         private bool _firstOpen;
         private bool _isWin;
+        private bool _timerIsActive = false;
+
         public bool IsGameOver => _isGameOver;
         public bool IsWin => _isWin;
+        public int DisplaySeconds => (int)(_elapsedMilliseconds / 1000);
+
+        public string LeaderboardTime
+        {
+            get
+            {
+                int ms = (int)(_elapsedMilliseconds % 1000);
+                int totalSeconds = DisplaySeconds;
+                int hours = totalSeconds / 3600;
+                int minutes = (totalSeconds % 3600) / 60;
+                int seconds = totalSeconds % 60;
+
+                return hours > 0
+                    ? $"{hours:D2}:{minutes:D2}:{seconds:D2}.{ms:D3}"
+                    : $"{minutes:D2}:{seconds:D2}.{ms:D3}";
+            }
+        }
+
+        public TimeOnly Time => TimeOnly.FromTimeSpan(TimeSpan.FromMilliseconds(_elapsedMilliseconds));
+
+        public DateTime GameTimeAsDateTime => new DateTime(1, 1, 1,
+            (int)(_elapsedMilliseconds / 3600000),
+            (int)((_elapsedMilliseconds % 3600000) / 60000),
+            (int)((_elapsedMilliseconds % 60000) / 1000));
+
 
         public GameBoardController(MainWindow window)
         {
@@ -32,14 +55,15 @@ namespace Minesweeper
 
             InitializeHeader();
 
-            _timer.Interval = TimeSpan.FromSeconds(1);
-            _timer.Tick += Timer_Tick;
+            _timer = new System.Timers.Timer(10);
+            _timer.Elapsed += Timer_Tick;
         }
 
         public void StartGame(int width, int height, int mineCount)
         {
             const int tileSize = 32;
             const int borderWidth = 2;
+            
 
             _width = width;
             _height = height;
@@ -47,10 +71,13 @@ namespace Minesweeper
             _gameStarted = false;
             _isGameOver = false;
             _firstOpen = true;
+            _timerIsActive = false;
 
             _window.PanelSettings.Visibility = Visibility.Collapsed;
             _window.PanelGame.Visibility = Visibility.Visible;
             _window.BoardCanvas.Children.Clear();
+
+            _elapsedMilliseconds = 0;
 
             ResetTimer();
 
@@ -300,6 +327,8 @@ namespace Minesweeper
                 _gameStarted = true;
                 _firstOpen = false;
                 StartTimer();
+                _timerIsActive = true;
+
             }
 
             cell.IsOpened = true;
@@ -459,15 +488,35 @@ namespace Minesweeper
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
-            _elapsedSeconds++;
-            _headerPanel.SetTime(_elapsedSeconds);
+
+            if (!_timerIsActive || _isGameOver)
+            {
+                StopTimer();
+                return;
+            }
+
+            try
+            {
+                Application.Current.Dispatcher?.Invoke(() =>
+                {
+                    if (_headerPanel != null && _timerIsActive)
+                    {
+                        _elapsedMilliseconds++;
+                        _headerPanel.SetTime(DisplaySeconds);
+                    }
+                });
+            }
+            catch { /* игнор */ }
         }
 
         private void StartTimer()
         {
-            _elapsedSeconds = 0;
-            _headerPanel.SetTime(0);
-            _headerPanel.SetFace(MinesweeperTextures.FaceSmile);
+            _elapsedMilliseconds = 0;
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                _headerPanel.SetTime(0);
+                _headerPanel.SetFace(MinesweeperTextures.FaceSmile);
+            });
 
             _timer.Start();
         }
@@ -502,7 +551,8 @@ namespace Minesweeper
             _isGameOver = true;
             _isWin = win;
             StopTimer();
-            
+            _timerIsActive = false;
+
             _gameStarted = false;
             if (win)
             {

@@ -58,13 +58,11 @@ namespace Minesweeper
         {
             _window = window;
 
-            // Подписываемся на события RadioButton
             _window.Easy.Checked += OnDifficultyChanged;
             _window.Medium.Checked += OnDifficultyChanged;
             _window.Hard.Checked += OnDifficultyChanged;
             _window.Custom.Checked += OnDifficultyChanged;
 
-            // LostFocus / KeyUp для обновления
             _window.TxtWidth.LostFocus += OnSizeUpdated;
             _window.TxtWidth.KeyUp += OnSizeKeyUp;
             _window.TxtHeight.LostFocus += OnSizeUpdated;
@@ -72,7 +70,6 @@ namespace Minesweeper
             _window.Mine.LostFocus += OnMineUpdated;
             _window.Mine.KeyUp += OnMineKeyUp;
 
-            // Правильное подписывание на PreviewTextInput
             _window.TxtWidth.PreviewTextInput += TextBoxOnlyDigits;
             _window.TxtHeight.PreviewTextInput += TextBoxOnlyDigits;
             _window.Mine.PreviewTextInput += TextBoxOnlyDigits;
@@ -81,12 +78,17 @@ namespace Minesweeper
             _window.TxtHeight.GotFocus += TextBoxSelectAll;
             _window.Mine.GotFocus += TextBoxSelectAll;
 
-            // Стартуем с «Лёгкой»
             SetEasy();
 
             _window.BtnPlay.Click += (sender, e) =>
             {
+                int difficultyLevel = _window.Easy.IsChecked == true ? 1 :
+                         _window.Medium.IsChecked == true ? 2 :
+                         _window.Hard.IsChecked == true ? 3 : 4;
+
                 _window._game.StartGame(_width, _height, _mineCount);
+                _window._leaderboardPage.GiveDifficulty(difficultyLevel);
+                _window.PanelSettings.Visibility = Visibility.Collapsed;
             };
         }
 
