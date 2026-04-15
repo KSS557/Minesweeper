@@ -79,7 +79,7 @@ namespace Minesweeper
             foreach (DataRow row in table.Rows)
             {
                 int diff = Convert.ToInt32(row["difficulty"]);
-                row["DifficultyText"] = diff switch
+                row["difficultyText"] = diff switch
                 {
                     1 => "Лёгкая",
                     2 => "Средняя",
@@ -108,12 +108,12 @@ namespace Minesweeper
             using var reader = cmd.ExecuteReader();
             table.Load(reader);
 
-            table.Columns.Add("DifficultyText", typeof(string));
+            table.Columns.Add("difficultyText", typeof(string));
 
             foreach (DataRow row in table.Rows)
             {
                 int diff = Convert.ToInt32(row["difficulty"]);
-                row["DifficultyText"] = diff switch
+                row["difficultyText"] = diff switch
                 {
                     1 => "Лёгкая",
                     2 => "Средняя",

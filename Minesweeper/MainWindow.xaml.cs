@@ -247,7 +247,7 @@ namespace Minesweeper
         private void LeaderboardTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (LeaderboardTable.SelectedItem is DataRowView rowView &&
-rowView.Row["nickname"] != DBNull.Value)
+            rowView.Row["nickname"] != DBNull.Value)
             {
                 string nickname = rowView.Row["nickname"].ToString();
 

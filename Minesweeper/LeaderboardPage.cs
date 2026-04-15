@@ -54,11 +54,11 @@ namespace Minesweeper
                 MessageBox.Show("Введите никнейм! Больше 4 символов");
                 return;
             }
-            Debug.WriteLine($"{nickname}, {difficulty}, {gameTime}, {DateTime.Now}");
             _window._leaderboard.AddRecord(nickname, _difficulty, timeString);
 
             _window.TextBoxLeaderboard.Clear();
 
+            _window.HideLeaderboardOverlay();
             _window.ShowSettings();
             _window.ShowLeaderbord();
             _nickname = null;
@@ -127,7 +127,6 @@ namespace Minesweeper
 
                 string difficultyTag = btn.Tag.ToString();
                 int difficulty = GetDifficultyFromTag(difficultyTag);
-                _nickname = null;
                 LoadLeaderboard(difficulty);
             }
         }

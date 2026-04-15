@@ -15,6 +15,7 @@ namespace Minesweeper
         private int _width, _height, _mineCount;
         private Cell[,] _cells;
         private long _elapsedMilliseconds = 0;
+        private int _lastDisplayedSeconds;
 
         private bool _gameStarted;
         private bool _isGameOver;
@@ -34,8 +35,9 @@ namespace Minesweeper
 
             InitializeHeader();
 
-            _timer = new System.Timers.Timer(1);
+            _timer = new System.Timers.Timer(1000);
             _timer.Elapsed += Timer_Tick;
+            _lastDisplayedSeconds = -1;
         }
 
         public void StartGame(int width, int height, int mineCount)
@@ -256,13 +258,43 @@ namespace Minesweeper
                 int r = rnd.Next(_height), c = rnd.Next(_width);
                 Cell candidate = _cells[r, c];
 
-                if (candidate == safeCell)
+                if (candidate == safeCell || candidate.IsMine)
                     continue;
 
-                if (!candidate.IsMine)
+                candidate.IsMine = true;
+                placed++;
+
+            }
+
+            foreach (var neighbor in safeCell.GetNeighbors(this, _height, _width))
+            {
+                RelocateAdjacentMines(neighbor, safeCell, rnd);
+            }
+        }
+
+        private void RelocateAdjacentMines(Cell neighbor, Cell safeCell, Random rnd)
+        {
+            // Пропускаем, если сосед НЕ мина
+            if (!neighbor.IsMine)
+                return;
+
+            // Получаем соседей ТЕКУЩЕГО соседа (neighbor)
+            var neighborNeighbors = neighbor.GetNeighbors(this, _height, _width);
+
+            // Пропускаем, если соседи neighbor пересекаются с safeCell или ее соседями
+            var safeCellNeighbors = safeCell.GetNeighbors(this, _height, _width);
+            bool skipRelocation = neighborNeighbors.Any(n => n == safeCell || safeCellNeighbors.Contains(n));
+
+
+            foreach (var nn in neighborNeighbors)
+            {
+                if (nn.IsMine) continue;
+                if (nn != safeCell && !safeCellNeighbors.Contains(nn))
                 {
-                    candidate.IsMine = true;
-                    placed++;
+                    
+                    neighbor.IsMine = false;
+                    nn.IsMine = true;
+                    return; 
                 }
             }
         }
@@ -467,32 +499,35 @@ namespace Minesweeper
 
         private void Timer_Tick(object? sender, EventArgs e)
         {
-
             if (!_timerIsActive || _isGameOver)
             {
                 StopTimer();
                 return;
             }
-            
-            var app = Application.Current;
-            if (app?.Dispatcher == null)
-            {
-                _timer?.Stop();
-                return;
-            }
 
-            try
+            // Функция 1: ПОДСЧЕТ миллисекунд (каждые 1мс)
+            _elapsedMilliseconds+= 1000;
+
+            // Функция 2: UI каждую секунду (когда %1000 == 0)
+            if (_elapsedMilliseconds % 1000 == 0)
             {
-                Application.Current.Dispatcher?.Invoke(() =>
-                {
-                    if (_headerPanel != null && _timerIsActive)
-                    {
-                        _elapsedMilliseconds++;
-                        _headerPanel.SetTime(DisplaySeconds);
-                    }
-                });
+                UpdateTimeDisplay();
             }
-            catch { /* игнор */ }
+        }
+
+        private void UpdateTimeDisplay()
+        {
+            if (_headerPanel == null) return;
+            
+                if (DisplaySeconds != _lastDisplayedSeconds)
+                {
+                    _lastDisplayedSeconds = DisplaySeconds;
+                    Application.Current.Dispatcher?.Invoke(() =>
+                    {
+                        _headerPanel.SetTime(DisplaySeconds);
+                    });
+                    Debug.WriteLine(DisplaySeconds);
+                }
         }
 
         private void StartTimer()
