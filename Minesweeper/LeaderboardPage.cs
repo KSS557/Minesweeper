@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -18,6 +19,7 @@ namespace Minesweeper
         public TextBox TextBoxLeaderboard => _window.TextBoxLeaderboard;
 
         private int _difficulty;
+        public string _nickname = null;
 
         public LeaderboardPage(MainWindow window)
         {
@@ -38,8 +40,6 @@ namespace Minesweeper
             _window.BtnMedium.Click += DifficultyButton_Click;
             _window.BtnHard.Click += DifficultyButton_Click;
             _window.BtnCustom.Click += DifficultyButton_Click;
-
-            LoadLeaderboard(1);
         }
 
         private void BtnSaveRecord_Click(object sender, RoutedEventArgs e)
@@ -47,6 +47,7 @@ namespace Minesweeper
             string nickname = _window.TextBoxLeaderboard.Text;
             int difficulty = _difficulty;
             TimeOnly gameTime = _window._game.Time;
+            string timeString = gameTime.ToString("HH:mm:ss.fff");
 
             if (nickname.Length < 4)
             {
@@ -54,12 +55,15 @@ namespace Minesweeper
                 return;
             }
             Debug.WriteLine($"{nickname}, {difficulty}, {gameTime}, {DateTime.Now}");
-            _window._leaderboard.AddRecord(nickname, _difficulty, gameTime);
+            _window._leaderboard.AddRecord(nickname, _difficulty, timeString);
 
             _window.TextBoxLeaderboard.Clear();
 
             _window.ShowSettings();
             _window.ShowLeaderbord();
+            _nickname = null;
+            LoadLeaderboard(_difficulty);
+            _leaderboard.GetPlayerRecords("KSS557", difficulty);
         }
 
         private void Window_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -105,11 +109,6 @@ namespace Minesweeper
             }
         }
 
-        public void LoadLeaderboard(string difficulty)
-        {
-            // _window.LeaderboardTable.ItemsSource = ...
-        }
-
         public void GiveDifficulty(int difficulty)
         {
             _difficulty = difficulty;
@@ -125,14 +124,10 @@ namespace Minesweeper
         {
             if (sender is Button btn)
             {
-                
-
-                //btn.Background = new SolidColorBrush(Colors.LightBlue);  // или ваш стиль
-                //btn.IsEnabled = false;  // визуально "активна"
 
                 string difficultyTag = btn.Tag.ToString();
                 int difficulty = GetDifficultyFromTag(difficultyTag);
-
+                _nickname = null;
                 LoadLeaderboard(difficulty);
             }
         }
@@ -149,17 +144,24 @@ namespace Minesweeper
             };
         }
 
-        private void LoadLeaderboard(int difficulty)
+
+        public void LoadLeaderboard(int difficulty)
         {
             try
             {
-                var leaderboard = new Leaderboard();  // ваш класс
-                DataTable table = leaderboard.GetTopByDifficulty(difficulty);
-
-                // ✅ Привязка DataTable к DataGrid
+                _difficulty = difficulty;
+                var leaderboard = new Leaderboard();
+                DataTable table;
+                if (_nickname == null)
+                {
+                    table = leaderboard.GetTopByDifficulty(difficulty);
+                }
+                else
+                {
+                    table = leaderboard.GetPlayerRecords(_nickname, difficulty);
+                }
                 _window.LeaderboardTable.ItemsSource = table.DefaultView;
 
-                // ✅ Добавляем колонку Rank (номер места)
                 if (!table.Columns.Contains("Rank"))
                 {
                     table.Columns.Add("Rank", typeof(int));
@@ -173,6 +175,13 @@ namespace Minesweeper
             {
                 MessageBox.Show($"Ошибка загрузки лидерборда: {ex.Message}");
             }
+        }
+
+        public void LeaderboardNickname(string nickname)
+        {
+            _nickname = nickname;
+            LoadLeaderboard(_difficulty);
+
         }
     }
 }

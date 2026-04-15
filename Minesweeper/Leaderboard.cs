@@ -27,7 +27,7 @@ namespace Minesweeper
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     nickname TEXT NOT NULL,
                     difficulty INTEGER NOT NULL,
-                    time DATETIME NOT NULL,
+                    time TEXT NOT NULL,
                     date DATETIME NOT NULL
                 )";
 
@@ -35,7 +35,7 @@ namespace Minesweeper
             cmd.ExecuteNonQuery();
         }
 
-        public void AddRecord(string nickname, int difficulty, TimeOnly time)
+        public void AddRecord(string nickname, int difficulty, string time)
         {
             string insert = @"
                 INSERT INTO Leaderboards (nickname, difficulty, time, date)
@@ -45,18 +45,26 @@ namespace Minesweeper
             cmd.Parameters.AddWithValue("@nickname", nickname);
             cmd.Parameters.AddWithValue("@difficulty", difficulty);
             cmd.Parameters.AddWithValue("@time", time);
-            cmd.Parameters.AddWithValue("@date", DateTime.Now);
+            cmd.Parameters.AddWithValue("@date", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
             cmd.ExecuteNonQuery();
-            Debug.WriteLine(cmd.Parameters);
         }
 
         public DataTable GetTopByDifficulty(int difficulty)
         {
             var table = new DataTable();
             string select = @"
-                SELECT nickname, difficulty, time, date 
-                FROM Leaderboards 
-                WHERE difficulty = @diff 
+                WITH best_attempts AS (
+                    SELECT nickname, difficulty, time, date,
+                           ROW_NUMBER() OVER (
+                               PARTITION BY nickname, difficulty 
+                               ORDER BY time ASC
+                           ) as rn
+                    FROM Leaderboards 
+                    WHERE difficulty = @diff
+                )
+                SELECT nickname, difficulty, time, date
+                FROM best_attempts 
+                WHERE rn = 1
                 ORDER BY time ASC 
                 LIMIT 100";
 
@@ -65,6 +73,55 @@ namespace Minesweeper
 
             using var reader = cmd.ExecuteReader();
             table.Load(reader);
+
+            table.Columns.Add("difficultyText", typeof(string));
+
+            foreach (DataRow row in table.Rows)
+            {
+                int diff = Convert.ToInt32(row["difficulty"]);
+                row["DifficultyText"] = diff switch
+                {
+                    1 => "Лёгкая",
+                    2 => "Средняя",
+                    3 => "Сложная",
+                    4 => "Кастомная",
+                    _ => diff.ToString()
+                };
+            }
+
+            return table;
+        }
+
+        public DataTable GetPlayerRecords(string nickname, int difficulty)
+        {
+            var table = new DataTable();
+            string select = @"
+                SELECT nickname, difficulty, time, date
+                FROM Leaderboards
+                WHERE nickname = @name AND difficulty = @diff
+                ORDER BY time ASC, date ASC";
+
+            using var cmd = new SqliteCommand(select, _connection);
+            cmd.Parameters.AddWithValue("@name", nickname);
+            cmd.Parameters.AddWithValue("@diff", difficulty);
+
+            using var reader = cmd.ExecuteReader();
+            table.Load(reader);
+
+            table.Columns.Add("DifficultyText", typeof(string));
+
+            foreach (DataRow row in table.Rows)
+            {
+                int diff = Convert.ToInt32(row["difficulty"]);
+                row["DifficultyText"] = diff switch
+                {
+                    1 => "Лёгкая",
+                    2 => "Средняя",
+                    3 => "Сложная",
+                    4 => "Кастомная",
+                    _ => diff.ToString()
+                };
+            }
 
             return table;
         }

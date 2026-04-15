@@ -54,8 +54,6 @@
             </Setter>
         </Style>
 
-        
-
         <Style x:Key="MenuButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#3B82F6"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -216,6 +214,63 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="LeaderboardHeaderStyle" TargetType="DataGridColumnHeader">
+        <Setter Property="Background" Value="#EFF6FF"/>
+        <Setter Property="Foreground" Value="#1F2937"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="4,6"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="BorderBrush" Value="#E5E7EB"/>
+    </Style>
+
+    <!-- Стиль строки -->
+    <Style x:Key="LeaderboardRowStyle" TargetType="DataGridRow">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="#111827"/>
+        <Setter Property="Background" Value="White"/>
+        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+        <Setter Property="BorderBrush" Value="#F3F4F6"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Padding" Value="0"/>
+        <Style.Triggers>
+            <!-- Подсветка строки при наведении -->
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="#EFF6FF"/>
+            </Trigger>
+            <!-- Цвет выбранной строки -->
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Background" Value="#DBEAFE"/>
+                <Setter Property="Foreground" Value="#111827"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Стиль ячеек по умолчанию -->
+    <Style x:Key="LeaderboardCellStyle" TargetType="DataGridCell">
+        <Setter Property="Padding" Value="8,6"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Foreground" Value="#111827"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Style.Triggers>
+            <!-- Чтобы при наведении подсвечивалась вся строка, а не только ячейка -->
+            <Trigger Property="IsSelected" Value="True">
+                <Setter Property="Foreground" Value="#111827"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Отдельный стиль для колонки "Игрок" (курсор-рука, отступы) -->
+    <Style x:Key="PlayerCellStyle" TargetType="DataGridCell" BasedOn="{StaticResource LeaderboardCellStyle}">
+        <Setter Property="Padding" Value="10,8"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Cursor" Value="Hand"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
     </Window.Resources>
     
     <Grid>
@@ -547,37 +602,63 @@
                           AutoGenerateColumns="False"
                           CanUserSortColumns="True"
                           IsReadOnly="True"
-                          GridLinesVisibility="Horizontal"
+                          GridLinesVisibility="None"
                           HeadersVisibility="Column"
                           SelectionMode="Single"
+                          CanUserAddRows="False"
+                          CanUserDeleteRows="False"
+                          CanUserResizeRows="False"
                           Background="White"
+                          BorderBrush="#E5E7EB"
                           BorderThickness="1"
-                          Margin="0,0,0,10" SelectionChanged="LeaderboardTable_SelectionChanged">
+                          RowStyle="{StaticResource LeaderboardRowStyle}"
+                          CellStyle="{StaticResource LeaderboardCellStyle}"
+                          ColumnHeaderStyle="{StaticResource LeaderboardHeaderStyle}"
+                          Margin="0,0,0,10"
+                          SelectionChanged="LeaderboardTable_SelectionChanged">
 
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="🏆" Width="50" 
-                                    Binding="{Binding Rank}" />
-                        <DataGridTextColumn Header="Игрок" Width="*" 
-                                    Binding="{Binding nickname}">
-                            <DataGridTextColumn.CellStyle>
-                                <Style TargetType="DataGridCell">
-                                    <Style.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="Background" Value="#EFF6FF"/>
-                                            <Setter Property="Cursor" Value="Hand"/>
-                                        </Trigger>
-                                    </Style.Triggers>
-                                    <Setter Property="Padding" Value="10,8"/>
+                        <DataGridTextColumn Header="🏆" Width="40"
+                                            Binding="{Binding Rank}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
                                 </Style>
-                            </DataGridTextColumn.CellStyle>
+                            </DataGridTextColumn.ElementStyle>
                         </DataGridTextColumn>
-                        <DataGridTextColumn Header="Сложность" Width="140" 
-                                    Binding="{Binding difficulty}" />
-                        <DataGridTextColumn Header="⏱️ Время" Width="110" 
-                                    Binding="{Binding time}" />
-                        
-                        <DataGridTextColumn Header="Дата" Width="110" 
-                                    Binding="{Binding date}"/>
+
+                        <DataGridTextColumn Header="Игрок" Width="*"
+                                            Binding="{Binding nickname}"
+                                            CellStyle="{StaticResource PlayerCellStyle}" />
+
+                        <DataGridTextColumn Header="Сложность" Width="100"
+                                            Binding="{Binding difficultyText}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Header="⏱️ Время" Width="120">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                            <DataGridTextColumn.Binding>
+                                <Binding Path="time" StringFormat="{}{0:mm\\:ss\\.fff}"/>
+                            </DataGridTextColumn.Binding>
+                        </DataGridTextColumn>
+
+                        <DataGridTextColumn Header="Дата" Width="130"
+                                            Binding="{Binding date}">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="HorizontalAlignment" Value="Center"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
                     </DataGrid.Columns>
                 </DataGrid>
             </ScrollViewer>

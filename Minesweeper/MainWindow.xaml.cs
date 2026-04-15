@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Data;
+using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -36,7 +37,7 @@ namespace Minesweeper
             BtnLeaderboard.Click += (s, e) => ShowLeaderbord();
             BtnBackToMenu.Click += (s, e) => ShowSettings();
 
-
+            BtnToggleView.Click += (s, e) => _leaderboardPage.LeaderboardNickname(null);
         }
 
         public void ShowSettings()
@@ -69,6 +70,8 @@ namespace Minesweeper
                 w.MaxWidth = double.PositiveInfinity;
                 w.MaxHeight = double.PositiveInfinity;
             }
+            _leaderboardPage._nickname = null;
+            _leaderboardPage.LoadLeaderboard(1);    
         }
 
         public void ResizeFromCenter(double newWidth, double newHeight)
@@ -243,7 +246,13 @@ namespace Minesweeper
 
         private void LeaderboardTable_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (LeaderboardTable.SelectedItem is DataRowView rowView &&
+rowView.Row["nickname"] != DBNull.Value)
+            {
+                string nickname = rowView.Row["nickname"].ToString();
 
+                _leaderboardPage.LeaderboardNickname(nickname);
+            }
         }
 
     }
