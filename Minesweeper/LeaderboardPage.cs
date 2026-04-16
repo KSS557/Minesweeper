@@ -47,14 +47,14 @@ namespace Minesweeper
             string nickname = _window.TextBoxLeaderboard.Text;
             int difficulty = _difficulty;
             TimeOnly gameTime = _window._game.Time;
-            string timeString = gameTime.ToString("HH:mm:ss.fff");
+            string timeString = gameTime.ToString("HH:mm:ss.ff");
 
             if (nickname.Length < 4)
             {
                 MessageBox.Show("Введите никнейм! Больше 4 символов");
                 return;
             }
-            _window._leaderboard.AddRecord(nickname, _difficulty, timeString);
+            _window._leaderboard.AddRecord(nickname, difficulty, timeString);
 
             _window.TextBoxLeaderboard.Clear();
 
@@ -62,8 +62,7 @@ namespace Minesweeper
             _window.ShowSettings();
             _window.ShowLeaderbord();
             _nickname = null;
-            LoadLeaderboard(_difficulty);
-            _leaderboard.GetPlayerRecords("KSS557", difficulty);
+            LoadLeaderboard(difficulty);
         }
 
         private void Window_PreviewMouseDown(object sender, MouseButtonEventArgs e)
@@ -112,12 +111,6 @@ namespace Minesweeper
         public void GiveDifficulty(int difficulty)
         {
             _difficulty = difficulty;
-        }
-
-        public void Unload()
-        {
-            _window.TextBoxLeaderboard.KeyDown -= TextBoxLeaderboard_KeyDown;
-            _window.TextBoxLeaderboard.TextChanged -= TextBoxLeaderboard_TextChanged;
         }
 
         private void DifficultyButton_Click(object sender, RoutedEventArgs e)

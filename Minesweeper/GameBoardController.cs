@@ -35,7 +35,7 @@ namespace Minesweeper
 
             InitializeHeader();
 
-            _timer = new System.Timers.Timer(1000);
+            _timer = new System.Timers.Timer(10);
             _timer.Elapsed += Timer_Tick;
             _lastDisplayedSeconds = -1;
         }
@@ -274,17 +274,12 @@ namespace Minesweeper
 
         private void RelocateAdjacentMines(Cell neighbor, Cell safeCell, Random rnd)
         {
-            // Пропускаем, если сосед НЕ мина
             if (!neighbor.IsMine)
                 return;
 
-            // Получаем соседей ТЕКУЩЕГО соседа (neighbor)
             var neighborNeighbors = neighbor.GetNeighbors(this, _height, _width);
 
-            // Пропускаем, если соседи neighbor пересекаются с safeCell или ее соседями
             var safeCellNeighbors = safeCell.GetNeighbors(this, _height, _width);
-            bool skipRelocation = neighborNeighbors.Any(n => n == safeCell || safeCellNeighbors.Contains(n));
-
 
             foreach (var nn in neighborNeighbors)
             {
@@ -505,10 +500,8 @@ namespace Minesweeper
                 return;
             }
 
-            // Функция 1: ПОДСЧЕТ миллисекунд (каждые 1мс)
-            _elapsedMilliseconds+= 1000;
+            _elapsedMilliseconds+= 10;
 
-            // Функция 2: UI каждую секунду (когда %1000 == 0)
             if (_elapsedMilliseconds % 1000 == 0)
             {
                 UpdateTimeDisplay();
@@ -526,7 +519,6 @@ namespace Minesweeper
                     {
                         _headerPanel.SetTime(DisplaySeconds);
                     });
-                    Debug.WriteLine(DisplaySeconds);
                 }
         }
 

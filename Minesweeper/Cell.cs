@@ -8,7 +8,6 @@ namespace Minesweeper
 {
     public class Cell : INotifyPropertyChanged
     {
-        public event Action<Cell> CellOpened;
         public event Action<Cell> FlagChanged;
 
         private Image _img;
