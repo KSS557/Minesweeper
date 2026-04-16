@@ -1,13 +1,11 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Minesweeper
 {
     public class GameHeaderPanel
     {
-        // Панели
 
 
         public Grid Panel = new Grid
@@ -18,20 +16,14 @@ namespace Minesweeper
 
         };
 
-        // Левая панель — таймер 3 цифры
         private readonly Image[] _timerDigits = new Image[3];
-        // Правая панель — флаги 3 цифры
         private readonly Image[] _flagDigits = new Image[3];
 
-        // Лицо‑кнопка
         private readonly Image _faceImage;
         public Image FaceImage => _faceImage;
 
         public GameHeaderPanel()
         {
-
-
-            // Левая панель — таймер
             var panelTimer = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Left };
             for (int i = 0; i < 3; i++)
             {
@@ -39,9 +31,6 @@ namespace Minesweeper
                 panelTimer.Children.Add(_timerDigits[i]);
             }
             
-            
-
-            // Правая панель — флаги
             var panelFlag = new StackPanel { Orientation = Orientation.Horizontal, HorizontalAlignment = HorizontalAlignment.Right };
             for (int i = 0; i < 3; i++)
             {

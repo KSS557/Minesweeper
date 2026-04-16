@@ -24,13 +24,11 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Grid>
-                            <!-- Тень как фон под кнопкой -->
                             <Border Background="#1D4ED8"
                             Opacity="0.2"
                             CornerRadius="8"
                             Margin="1"/>
 
-                            <!-- Сама кнопка без эффекта -->
                             <Border x:Name="Border"
                             Background="{TemplateBinding Background}"
                             CornerRadius="8"
@@ -100,10 +98,6 @@
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0,0,0,10"/>
 
-            <!-- Border вокруг текста -->
-            
-
-            <!-- Тень для Border -->
             <Setter Property="Effect">
                 <Setter.Value>
                     <DropShadowEffect Color="#1E40AF" 
@@ -127,7 +121,6 @@
                         CornerRadius="10" 
                         Padding="5">
 
-                            <!-- Grid для точного центрирования -->
                             <Grid>
                                 <TextBlock Text="{TemplateBinding Content}"
                                            Foreground="White"
@@ -226,7 +219,6 @@
         <Setter Property="BorderBrush" Value="#E5E7EB"/>
     </Style>
 
-    <!-- Стиль строки -->
     <Style x:Key="LeaderboardRowStyle" TargetType="DataGridRow">
         <Setter Property="FontSize" Value="12"/>
         <Setter Property="Foreground" Value="#111827"/>
@@ -235,34 +227,29 @@
         <Setter Property="BorderBrush" Value="#F3F4F6"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="Padding" Value="0"/>
-        <Style.Triggers>
-            <!-- Подсветка строки при наведении -->
-            <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="Background" Value="#EFF6FF"/>
-            </Trigger>
-            <!-- Цвет выбранной строки -->
-            <Trigger Property="IsSelected" Value="True">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#EFF6FF"/>
+                </Trigger>
+                <Trigger Property="IsSelected" Value="True">
                 <Setter Property="Background" Value="#DBEAFE"/>
                 <Setter Property="Foreground" Value="#111827"/>
             </Trigger>
         </Style.Triggers>
     </Style>
 
-    <!-- Стиль ячеек по умолчанию -->
     <Style x:Key="LeaderboardCellStyle" TargetType="DataGridCell">
         <Setter Property="Padding" Value="8,6"/>
         <Setter Property="BorderThickness" Value="0"/>
         <Setter Property="Foreground" Value="#111827"/>
         <Setter Property="Background" Value="Transparent"/>
-        <Style.Triggers>
-            <!-- Чтобы при наведении подсвечивалась вся строка, а не только ячейка -->
-            <Trigger Property="IsSelected" Value="True">
+            <Style.Triggers>
+                <Trigger Property="IsSelected" Value="True">
                 <Setter Property="Foreground" Value="#111827"/>
             </Trigger>
         </Style.Triggers>
     </Style>
 
-    <!-- Отдельный стиль для колонки "Игрок" (курсор-рука, отступы) -->
     <Style x:Key="PlayerCellStyle" TargetType="DataGridCell" BasedOn="{StaticResource LeaderboardCellStyle}">
         <Setter Property="Padding" Value="10,8"/>
         <Style.Triggers>
