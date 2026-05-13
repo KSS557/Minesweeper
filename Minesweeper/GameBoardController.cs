@@ -10,11 +10,14 @@ namespace Minesweeper
         public readonly MainWindow _window;
         private readonly System.Timers.Timer _timer;
         private GameHeaderPanel _headerPanel;
+        private readonly Random _rnd = new();
 
         private int _width, _height, _mineCount;
         private Cell[,] _cells;
         private long _elapsedMilliseconds = 0;
         private int _lastDisplayedSeconds;
+        private int _openedSafeCells;
+        private int _flagCount;
 
         private bool _gameStarted;
         private bool _isGameOver;
@@ -57,6 +60,8 @@ namespace Minesweeper
             _window.PanelGame.Visibility = Visibility.Visible;
             _window.BoardCanvas.Children.Clear();
 
+            _openedSafeCells = 0;
+            _flagCount = 0;
             _elapsedMilliseconds = 0;
 
             ResetTimer();
@@ -97,10 +102,7 @@ namespace Minesweeper
                 }
             }
 
-            foreach (var cell in _cells)
-            {
-                cell.FlagChanged += OnCellFlagChanged;
-            }
+            InitializeNeighbors();
 
             double canvasWidth = width * tileSize + 2 * borderWidth;
             double canvasHeight = height * tileSize + 2 * borderWidth;
@@ -129,7 +131,35 @@ namespace Minesweeper
                     _window.ResizeFromCenter(_window.MaxWidth, _window.MaxHeight);
                 }
             });
+        }
 
+        private void InitializeNeighbors()
+        {
+            for (int r = 0; r < _height; r++)
+            {
+                for (int c = 0; c < _width; c++)
+                {
+                    var cell = _cells[r, c];
+
+                    for (int dr = -1; dr <= 1; dr++)
+                    {
+                        for (int dc = -1; dc <= 1; dc++)
+                        {
+                            if (dr == 0 && dc == 0)
+                                continue;
+
+                            int nr = r + dr;
+                            int nc = c + dc;
+
+                            if (nr >= 0 && nr < _height &&
+                                nc >= 0 && nc < _width)
+                            {
+                                cell.Neighbors.Add(_cells[nr, nc]);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         private void SetupCellEvents(Image img, Cell cell, Cell[,] cells)
@@ -176,7 +206,7 @@ namespace Minesweeper
         {
             if (cell.IsOpened)
             {
-                foreach (var neighbor in cell.GetNeighbors(this, _height, _width))
+                foreach (var neighbor in cell.Neighbors)
                 {
                     if (!neighbor.IsOpened && !neighbor.IsFlagged && !neighbor.IsUnknown)
                     {
@@ -196,11 +226,17 @@ namespace Minesweeper
         {
             if (cell.IsOpened)
             {
-                int flagCount = cell.GetNeighbors(this, _height, _width).Count(n => n.IsFlagged);
+                int flagCount = 0;
+
+                foreach (var n in cell.Neighbors)
+                {
+                    if (n.IsFlagged)
+                        flagCount++;
+                }
 
                 if (flagCount == cell.AdjacentMines)
                 {
-                    foreach (var neighbor in cell.GetNeighbors(this, _height, _width))
+                    foreach (var neighbor in cell.Neighbors)
                     {
                         if (!neighbor.IsOpened && !neighbor.IsFlagged && neighbor.IsPressed)
                         {
@@ -210,7 +246,7 @@ namespace Minesweeper
                 }
                 else
                 {
-                    foreach (var neighbor in cell.GetNeighbors(this, _height, _width))
+                    foreach (var neighbor in cell.Neighbors)
                     {
                         if (!neighbor.IsOpened && !neighbor.IsFlagged && !neighbor.IsUnknown)
                         {
@@ -232,7 +268,7 @@ namespace Minesweeper
         {
             if (cell.IsOpened)
             {
-                foreach (var neighbor in cell.GetNeighbors(this, _height, _width))
+                foreach (var neighbor in cell.Neighbors)
                 {
                     if (!neighbor.IsOpened && !neighbor.IsFlagged && !neighbor.IsUnknown)
                     {
@@ -250,60 +286,86 @@ namespace Minesweeper
 
         private void PlaceMines(Cell safeCell)
         {
-            Random rnd = new Random();
-            int placed = 0;
-            while (placed < _mineCount)
+
+            List<Cell> available = new();
+
+            for (int r = 0; r < _height; r++)
             {
-                int r = rnd.Next(_height), c = rnd.Next(_width);
-                Cell candidate = _cells[r, c];
+                for (int c = 0; c < _width; c++)
+                {
+                    var cell = _cells[r, c];
 
-                if (candidate == safeCell || candidate.IsMine)
-                    continue;
-
-                candidate.IsMine = true;
-                placed++;
-
+                    if (cell != safeCell)
+                        available.Add(cell);
+                }
             }
 
-            foreach (var neighbor in safeCell.GetNeighbors(this, _height, _width))
+            for (int i = available.Count - 1; i > 0; i--)
             {
-                RelocateAdjacentMines(neighbor, safeCell, rnd);
+                int j = _rnd.Next(i + 1);
+                (available[i], available[j]) = (available[j], available[i]);
             }
+
+            for (int i = 0; i < _mineCount; i++)
+            {
+                available[i].IsMine = true;
+            }
+            RelocateAroundSafeCell(safeCell);
         }
 
-        private void RelocateAdjacentMines(Cell neighbor, Cell safeCell, Random rnd)
+        private void RelocateAroundSafeCell(Cell safeCell)
+        {
+
+            var safeNeighbors = safeCell.Neighbors;
+
+            foreach (var neighbor in safeNeighbors)
+            {
+                RelocateAdjacentMines(neighbor, safeCell);
+            }
+        }
+        private void RelocateAdjacentMines(Cell neighbor, Cell safeCell)
         {
             if (!neighbor.IsMine)
                 return;
 
-            var neighborNeighbors = neighbor.GetNeighbors(this, _height, _width);
+            var neighborNeighbors = neighbor.Neighbors;
+            var safeNeighbors = safeCell.Neighbors;
 
-            var safeCellNeighbors = safeCell.GetNeighbors(this, _height, _width);
+            HashSet<Cell> safeSet = new(safeNeighbors)
+            {
+                safeCell
+            };
 
             foreach (var nn in neighborNeighbors)
             {
-                if (nn.IsMine) continue;
-                if (nn != safeCell && !safeCellNeighbors.Contains(nn))
+                if (nn.IsMine)
+                    continue;
+
+                if (!safeSet.Contains(nn))
                 {
-                    
                     neighbor.IsMine = false;
                     nn.IsMine = true;
-                    return; 
+                    return;
                 }
             }
         }
 
         private void CalculateNumbers()
         {
-            for (int r = 0; r < _height; r++)
+            foreach (var cell in _cells)
             {
-                for (int c = 0; c < _width; c++)
+                if (cell.IsMine)
+                    continue;
+
+                int count = 0;
+
+                foreach (var neighbor in cell.Neighbors)
                 {
-                    if (!_cells[r, c].IsMine)
-                    {
-                        _cells[r, c].AdjacentMines = _cells[r, c].GetNeighbors(this, _height, _width).Count(n => n.IsMine);
-                    }
+                    if (neighbor.IsMine)
+                        count++;
                 }
+
+                cell.AdjacentMines = count;
             }
         }
 
@@ -311,7 +373,7 @@ namespace Minesweeper
         {
             if (cell.AdjacentMines == 0)
             {
-                foreach (var neighbor in cell.GetNeighbors(this, _height, _width))
+                foreach (var neighbor in cell.Neighbors)
                 {
                     if (!neighbor.IsOpened && !neighbor.IsFlagged && !neighbor.IsUnknown)
                     {
@@ -323,60 +385,72 @@ namespace Minesweeper
 
         private void FinalizeCellOpen(Cell cell)
         {
-            if (cell.IsFlagged || cell.IsOpened || cell.IsUnknown) return;
+            if (cell.IsFlagged ||
+                cell.IsOpened ||
+                cell.IsUnknown)
+            {
+                return;
+            }
 
             if (!_gameStarted && _firstOpen)
             {
                 PlaceMines(cell);
+
                 CalculateNumbers();
+
                 _gameStarted = true;
                 _firstOpen = false;
+
                 StartTimer();
                 _timerIsActive = true;
-
             }
 
-            cell.IsOpened = true;
-            cell.IsPressed = false;
-
+            
             if (cell.IsMine)
             {
                 cell.IsPressedBomb = true;
+
                 SetGameOverState(false);
+
                 return;
             }
-            
-            if (cell.AdjacentMines == 0)
-            {
-                FloodFillOpen(cell);
-            }
-
-            OpenNeighborZero(cell);
+            FloodFillOpen(cell);
 
             CheckWin();
-            
         }
 
-        private void FloodFillOpen(Cell startCell)
+        private void FloodFillOpen(Cell start)
         {
-            var stack = new Stack<Cell>();
-            stack.Push(startCell);
+            Stack<Cell> stack = new();
+
+            stack.Push(start);
 
             while (stack.Count > 0)
             {
                 var cell = stack.Pop();
-                if (cell.IsOpened || cell.IsFlagged) continue;
+
+                if (cell.IsOpened ||
+                    cell.IsFlagged)
+                {
+                    continue;
+                }
 
                 cell.IsOpened = true;
 
-                foreach (var neighbor in cell.GetNeighbors(this, _height, _width))
+                if (!cell.IsMine)
                 {
-                    if (!neighbor.IsFlagged && !neighbor.IsOpened)
+                    _openedSafeCells++;
+                }
+
+                if (cell.AdjacentMines > 0)
+                    continue;
+
+                foreach (var neighbor in cell.Neighbors)
+                {
+                    if (!neighbor.IsOpened &&
+                        !neighbor.IsFlagged)
                     {
-                        if (neighbor.AdjacentMines == 0)
-                            stack.Push(neighbor);
-                        else
-                            neighbor.IsOpened = true;
+                        stack.Push(neighbor);
                     }
                 }
             }
@@ -384,12 +458,16 @@ namespace Minesweeper
 
         private void ToggleFlag(Cell cell)
         {
-            if (cell.IsOpened) return;
+            if (cell.IsOpened)
+                return;
 
             if (cell.IsFlagged)
             {
                 cell.IsFlagged = false;
+
                 cell.IsUnknown = true;
+
+                _flagCount--;
             }
             else if (cell.IsUnknown)
             {
@@ -398,8 +476,11 @@ namespace Minesweeper
             else
             {
                 cell.IsFlagged = true;
+
+                _flagCount++;
             }
 
+            _headerPanel.SetFlags(_mineCount - _flagCount);
         }
 
         private void OnCellFlagChanged(Cell cell)
@@ -441,13 +522,12 @@ namespace Minesweeper
 
         private void CheckWin()
         {
-            int opened = 0;
-            foreach (Image img in _window.BoardCanvas.Children.OfType<Image>())
-            {
-                if (img.Tag is Cell cell && cell.IsOpened && !cell.IsMine) opened++;
-            }
             int totalSafe = _width * _height - _mineCount;
-            if (opened == totalSafe) SetGameOverState(true);
+
+            if (_openedSafeCells == totalSafe)
+            {
+                SetGameOverState(true);
+            }
         }
 
         private void InitializeHeader()
