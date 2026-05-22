@@ -369,20 +369,6 @@ namespace Minesweeper
             }
         }
 
-        private void OpenNeighborZero(Cell cell)
-        {
-            if (cell.AdjacentMines == 0)
-            {
-                foreach (var neighbor in cell.Neighbors)
-                {
-                    if (!neighbor.IsOpened && !neighbor.IsFlagged && !neighbor.IsUnknown)
-                    {
-                        FinalizeCellOpen(neighbor);
-                    }
-                }
-            }
-        }
-
         private void FinalizeCellOpen(Cell cell)
         {
             if (cell.IsFlagged ||

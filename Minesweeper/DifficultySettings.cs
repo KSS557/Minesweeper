@@ -13,7 +13,7 @@ namespace Minesweeper
         private int _height;
         private int _mineCount;
         private const int MinSize = 2;
-        private const int MaxSize = 99;
+        private const int MaxSize = 50;
 
         public int Width
         {
@@ -117,7 +117,6 @@ namespace Minesweeper
             else if (_window.Custom.IsChecked == true)
             {
                 SetCustomInputsEnabled(true);
-                // минимальные значения
                 if (string.IsNullOrWhiteSpace(_window.TxtWidth.Text))
                     _window.TxtWidth.Text = "2";
                 if (string.IsNullOrWhiteSpace(_window.TxtHeight.Text))
