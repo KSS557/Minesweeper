@@ -469,21 +469,6 @@ namespace Minesweeper
             _headerPanel.SetFlags(_mineCount - _flagCount);
         }
 
-        private void OnCellFlagChanged(Cell cell)
-        {
-            _headerPanel.SetFlags(_mineCount - CountFlags());
-        }
-
-        private int CountFlags()
-        {
-            int count = 0;
-            foreach (Image img in _window.BoardCanvas.Children)
-            {
-                if (img.Tag is Cell cell && cell.IsFlagged)
-                    count++;
-            }
-            return count;
-        }
 
         private void RevealAllMines(bool win)
         {
@@ -513,6 +498,7 @@ namespace Minesweeper
             if (_openedSafeCells == totalSafe)
             {
                 SetGameOverState(true);
+                _headerPanel.SetFlags(0);
             }
         }
 
